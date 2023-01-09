@@ -24,6 +24,37 @@ NICKNAME_STATUS = (
 GREEK_CLASS = (('01', "Alpha"), ('02', "Beta"), ('03', "Gamma"), ('04', "Delta"), ('05', "Epsilon"), ('06', "Zeta"), ('07', "Eta"), ('08', "Theta"), ('09', "Iota"), (10, "Lambda"),
                (11, "Mu"), (12, "Nu"), (13, "Xi"), (14, "Omicron"), (15, "Pi"), (16, "Rho"), (17, "Sigma"), (18, "Tau"), (19, "Upsilon"), (20, "Phi"), (21, "Chi"), (22, "Psi"), (23, "Omega"))
 
+JOB_LEVEL = (
+    ("00", "Internship"),
+    ("01", "Entry"),
+    ("02", "Associate"),
+    ("03", "Analyst"),
+    ("04", "Specialist"),
+    ("05", "Manager"),
+    ("06", "Senior Manager"),
+    ("07", "Director"),
+    ("08", "Senior Director"),
+    ("09", "Executive"),
+)
+
+EXPERTISE_INTERESTS = (
+    ("01", "Accounting"),
+    ("02", "Compliance"),
+    ("03", "Law"),
+    ("04", "Software Engineering"),
+    ("05", "Math"),
+    ("06", "Music"),
+    ("07", "Electrical"),
+    ("08", "Marketing"),
+    ("09", "SEO"),
+    ("10", "SEI"),
+    ("11", "Business"),
+    ("12", "Child Development"),
+    ("13", "Nursing"),
+    ("14", "Surgeon"),
+    ("15", "Mental Health"),
+)
+
 
 class Chapter(models.Model):
     name = models.CharField(max_length=50)
@@ -37,6 +68,10 @@ class Chapter(models.Model):
 
     def __str__(self):
         return f"{self.name} @ {self.chapter_school}"
+
+
+class Industry(models.Model):
+    industry = models.CharField(max_length=50)
 
 
 class Sister(models.Model):
@@ -53,16 +88,30 @@ class Sister(models.Model):
         choices=GREEK_CLASS,
         default=None,
     )
-    crossing_semester = models.CharField(max_length=6)
-    crossing_year = models.IntegerField()
+    crossing_date = models.DateTimeField(
+        'crossing date', auto_created=False, default=None)
+    initiation_date = models.DateTimeField(
+        'PNM initiation date', auto_created=False, default=None)
+    line_number = models.IntegerField(null=True)
     big_sister = models.ForeignKey(
         'self', on_delete=models.CASCADE, blank=True, null=True)
     tree = models.CharField(max_length=20)
-    line_number = models.IntegerField(null=True)
     status = models.CharField(
         max_length=2,
         choices=STATUS,
         default=STATUS[0][0])
+    current_city = models.CharField(max_length=15, null=True)
+    current_state = models.CharField(max_length=15, null=True)
+    current_country = models.CharField(max_length=15, null=True)
+    email_address = models.CharField(max_length=15, null=True)
+    # User
+    coach = models.BooleanField(default=False)
+    current_position = models.CharField(max_length=30, null=True)
+    current_company = models.CharField(max_length=20, null=True)
+    linkedin_url = models.CharField(max_length=50, null=True)
+    expertise_interests = models.ForeignKey(
+        Industry, on_delete=models.DO_NOTHING, null=True)
+    summary = models.TextField(max_length=250, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.nickname}"
@@ -112,3 +161,18 @@ class Nickname_Request (models.Model):
 
     #     class Meta:
     #         ordering = ['-date']
+
+
+class Job_Opps_And_Referrals(models.Model):
+    pub_date = models.DateTimeField(
+        'date published', auto_created=True, default=timezone.now())
+    job_title = models.CharField(max_length=50)
+    company_name = models.CharField(max_length=50)
+    job_link = models.CharField(max_length=250)
+    level_of_opening = models.CharField(max_length=2,
+                                        choices=JOB_LEVEL,
+                                        default=JOB_LEVEL[0][0])
+    industry = models.ForeignKey(
+        Industry, on_delete=models.DO_NOTHING, null=True)
+    description = models.TextField(max_length=250)
+    poster = models.ForeignKey(Sister, on_delete=models.CASCADE, null=True)

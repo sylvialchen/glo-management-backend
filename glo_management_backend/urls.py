@@ -8,4 +8,6 @@ urlpatterns = [
     # In this case '' represents the root route
     path('', include('main_app.urls')),
     re_path(r'^api/chapters/$', views.chapters_list),
+    re_path(r'^api/jobs/$', views.jobs_list),
+    re_path(r'^api/sisters/$', views.sisters_list),
 ]
