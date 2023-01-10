@@ -14,6 +14,11 @@ STATUS = (
     ("DE", "Deceased"),
 )
 
+CHAPTER_STATUS = (
+    ("AC", "Active"),
+    ("IN", "Inactive"),
+)
+
 NICKNAME_STATUS = (
     ("RE", "Requested"),
     ("AP", "Approved"),
@@ -37,31 +42,19 @@ JOB_LEVEL = (
     ("09", "Executive"),
 )
 
-EXPERTISE_INTERESTS = (
-    ("01", "Accounting"),
-    ("02", "Compliance"),
-    ("03", "Law"),
-    ("04", "Software Engineering"),
-    ("05", "Math"),
-    ("06", "Music"),
-    ("07", "Electrical"),
-    ("08", "Marketing"),
-    ("09", "SEO"),
-    ("10", "SEI"),
-    ("11", "Business"),
-    ("12", "Child Development"),
-    ("13", "Nursing"),
-    ("14", "Surgeon"),
-    ("15", "Mental Health"),
-)
-
 
 class Chapter(models.Model):
-    name = models.CharField(max_length=50)
+    associate_chapter = models.BooleanField(default=True)
+    # greek_letter_assigned = (if associate_chapter == False:
+    #                          models.CharField(
+    #                              max_length=15, blank=False, null=False)
+    #                          else models.CharField(max_length=1, null=True, blank=True))
     chapter_school = models.CharField(max_length=50)
     city_state = models.CharField(max_length=50)
     original_founding_date = models.DateField()
     recharter_date = models.DateField(null=True, blank=True)
+    chapter_status = models.CharField(
+        max_length=2, choices=CHAPTER_STATUS, default=CHAPTER_STATUS[0][0])
 
     def get_absolute_url(self):
         return reverse('chapter_detail', kwargs={'chapter_id': self.id})
@@ -103,7 +96,7 @@ class Sister(models.Model):
     current_city = models.CharField(max_length=15, null=True)
     current_state = models.CharField(max_length=15, null=True)
     current_country = models.CharField(max_length=15, null=True)
-    email_address = models.CharField(max_length=15, null=True)
+    email_address = models.EmailField(max_length=30, null=True)
     # User
     coach = models.BooleanField(default=False)
     current_position = models.CharField(max_length=30, null=True)
