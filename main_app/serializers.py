@@ -5,8 +5,8 @@ from .models import Chapter, Job_Opps_And_Referrals, Sister
 class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
-        fields = ('name', 'chapter_school',
-                  'city_state', 'original_founding_date')
+        fields = ('associate_chapter', 'greek_letter_assigned', 'chapter_school',
+                  'city_state', 'original_founding_date', 'recharter_date', 'chapter_status')
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
