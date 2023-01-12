@@ -45,10 +45,8 @@ JOB_LEVEL = (
 
 class Chapter(models.Model):
     associate_chapter = models.BooleanField(default=True)
-    # greek_letter_assigned = (if associate_chapter == False:
-    #                          models.CharField(
-    #                              max_length=15, blank=False, null=False)
-    #                          else models.CharField(max_length=1, null=True, blank=True))
+    greek_letter_assigned = models.CharField(
+        max_length=15, blank=False, null=True)
     chapter_school = models.CharField(max_length=50)
     city_state = models.CharField(max_length=50)
     original_founding_date = models.DateField()
@@ -56,11 +54,11 @@ class Chapter(models.Model):
     chapter_status = models.CharField(
         max_length=2, choices=CHAPTER_STATUS, default=CHAPTER_STATUS[0][0])
 
-    def get_absolute_url(self):
-        return reverse('chapter_detail', kwargs={'chapter_id': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
 
     def __str__(self):
-        return f"{self.name} @ {self.chapter_school}"
+        return f"{self.greek_letter_assigned} @ {self.chapter_school}"
 
 
 class Industry(models.Model):
@@ -87,8 +85,8 @@ class Sister(models.Model):
         'PNM initiation date', auto_created=False, default=None)
     line_number = models.IntegerField(null=True)
     big_sister = models.ForeignKey(
-        'self', on_delete=models.CASCADE, blank=True, null=True)
-    tree = models.CharField(max_length=20)
+        'self', on_delete=models.CASCADE)
+    tree = models.CharField(max_length=20, blank=True, null=True)
     status = models.CharField(
         max_length=2,
         choices=STATUS,
@@ -99,12 +97,12 @@ class Sister(models.Model):
     email_address = models.EmailField(max_length=30, null=True)
     # User
     coach = models.BooleanField(default=False)
-    current_position = models.CharField(max_length=30, null=True)
-    current_company = models.CharField(max_length=20, null=True)
-    linkedin_url = models.CharField(max_length=50, null=True)
+    current_position = models.CharField(max_length=30, blank=True, null=True)
+    current_company = models.CharField(max_length=20, blank=True, null=True)
+    linkedin_url = models.CharField(max_length=50, blank=True, null=True)
     expertise_interests = models.ForeignKey(
-        Industry, on_delete=models.DO_NOTHING, null=True)
-    summary = models.TextField(max_length=250, null=True)
+        Industry, on_delete=models.CASCADE, blank=True, null=True)
+    summary = models.TextField(max_length=250, blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.nickname}"
@@ -135,7 +133,7 @@ class Nickname_Request (models.Model):
     name = models.CharField("nickname request", max_length=20)
     nickname_meaning = models.TextField(max_length=250)
     pnm = models.ForeignKey(Pnm, on_delete=models.CASCADE, null=True)
-    requestor = models.ForeignKey(Sister, on_delete=models.CASCADE, null=True)
+    requestor = models.ForeignKey(Sister, on_delete=models.SET_NULL, null=True)
     req_date = models.DateTimeField(
         'date requested', auto_created=True, default=timezone.now())
     nickname_approval_status = models.CharField("Nickname Approval Status",
@@ -166,6 +164,6 @@ class Job_Opps_And_Referrals(models.Model):
                                         choices=JOB_LEVEL,
                                         default=JOB_LEVEL[0][0])
     industry = models.ForeignKey(
-        Industry, on_delete=models.DO_NOTHING, null=True)
+        Industry, on_delete=models.SET_NULL, null=True)
     description = models.TextField(max_length=250)
     poster = models.ForeignKey(Sister, on_delete=models.CASCADE, null=True)
