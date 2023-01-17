@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Chapter, Job_Opps_And_Referrals, Sister
+from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences
 
 
 class ChapterSerializer(serializers.ModelSerializer):
@@ -7,6 +7,13 @@ class ChapterSerializer(serializers.ModelSerializer):
         model = Chapter
         fields = ('id', 'associate_chapter', 'greek_letter_assigned', 'chapter_school',
                   'city_state', 'original_founding_date', 'recharter_date', 'chapter_status')
+
+
+class MemberExperiencesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member_Experiences
+        fields = ('id', 'sister_member', 'position', 'start_date', 'end_date',
+                  'chapter')
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
