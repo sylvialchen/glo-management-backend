@@ -107,8 +107,8 @@ class Sister(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.nickname}"
 
-    def get_absolute_url(self):
-        return reverse('sister_detail', kwargs={'sister_id': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('sister_detail', kwargs={'sister_id': self.id})
 
 
 class Pnm(models.Model):
@@ -125,8 +125,8 @@ class Pnm(models.Model):
     def __str__(self):
         return f"PNM {self.first_name}"
 
-    def get_absolute_url(self):
-        return reverse('pnm_detail', kwargs={'pnm_id': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('pnm_detail', kwargs={'pnm_id': self.id})
 
 
 class Nickname_Request (models.Model):
@@ -147,8 +147,8 @@ class Nickname_Request (models.Model):
     def __str__(self):
         return f"PNM {self.name}"
 
-    def get_absolute_url(self):
-        return reverse('sister_detail', kwargs={'sister_id': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('sister_detail', kwargs={'sister_id': self.id})
 
     #     class Meta:
     #         ordering = ['-date']
@@ -167,3 +167,18 @@ class Job_Opps_And_Referrals(models.Model):
         Industry, on_delete=models.SET_NULL, null=True)
     description = models.TextField(max_length=250)
     poster = models.ForeignKey(Sister, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return f"{self.job_title} @ {self.company_name}"
+
+
+class Member_Experiences(models.Model):
+    sister_member = models.ForeignKey(
+        Sister, on_delete=models.CASCADE, null=True)
+    position = models.CharField(max_length=50)
+    start_date = models.DateField(null=False)
+    end_date = models.DateField(null=False)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, null=False)
+
+    def __str__(self):
+        return f"{self.sister_member} held {self.position} from {self.start_date} to {self.end_date}"
