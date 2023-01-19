@@ -12,5 +12,6 @@ urlpatterns = [
     path('api/jobs/', views.jobs_list),
     path('api/sisters/', views.sisters_list),
     path('api/sisters/edit/<int:id>', views.sisters_detail),
-    path('api/experiences', views.experiences_list)
+    path('api/experiences', views.experiences_list),
+    path('api/coaches', views.coach_list)
 ]

@@ -103,6 +103,21 @@ def sisters_detail(request, id):
     #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@api_view(['GET'])
+def coach_list(request):
+    if request.method == 'GET':
+        data = Sister.objects.filter(coach_fg=True)
+        serializer = SistersSerializer(
+            data, context={'request': request}, many=True)
+        return Response(serializer.data)
+    # elif request.method == 'POST':
+    #     serializer = SistersSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET', 'POST'])
 def experiences_list(request):
     if request.method == 'GET':
