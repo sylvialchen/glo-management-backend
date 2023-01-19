@@ -69,7 +69,7 @@ class Chapter(models.Model):
     #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
 
     def __str__(self):
-        return f"{self.greek_letter_assigned} @ {self.chapter_school}"
+        return f"{self.greek_letter_assigned_txt} @ {self.chapter_school_txt}"
 
 
 class Industry(models.Model):
@@ -118,7 +118,7 @@ class Sister(models.Model):
     summary_txt = models.TextField(max_length=250, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.nickname}"
+        return f"{self.first_name_txt} {self.last_name_txt} - {self.nickname_txt}"
 
     # def get_absolute_url(self):
     #     return reverse('sister_detail', kwargs={'sister_id': self.id})
@@ -136,7 +136,7 @@ class Pnm(models.Model):
         Sister, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return f"PNM {self.first_name}"
+        return f"PNM {self.first_name_txt}"
 
     # def get_absolute_url(self):
     #     return reverse('pnm_detail', kwargs={'pnm_id': self.id})
@@ -159,7 +159,7 @@ class Nickname_Request (models.Model):
     #     return now - datetime.timedelta(days=1) <= self.req_date <= now
 
     def __str__(self):
-        return f"PNM {self.name}"
+        return f"PNM {self.name_txt}"
 
     # def get_absolute_url(self):
     #     return reverse('sister_detail', kwargs={'sister_id': self.id})
@@ -186,7 +186,7 @@ class Job_Opps_And_Referrals(models.Model):
     poster_nb = models.ForeignKey(Sister, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f"{self.job_title} @ {self.company_name}"
+        return f"{self.job_title_txt} @ {self.company_name_txt}"
 
 
 class Position_Titles(models.Model):
@@ -200,7 +200,7 @@ class Position_Titles(models.Model):
         default=JOB_FAMILY[0][0])
 
     def __str__(self):
-        return f"{self.position_title}, active: {self.active} part of {self.job_family} job family"
+        return f"{self.position_title_txt}, active: {self.active_fg} part of {self.job_family_txt} job family"
 
 
 class Member_Experiences(models.Model):
@@ -214,4 +214,4 @@ class Member_Experiences(models.Model):
         Chapter, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return f"{self.sister_keey} held {self.position_key} from {self.start_date} to {self.end_date}"
+        return f"{self.sister_nb} held {self.position_nb} from {self.start_date} to {self.end_date}"
