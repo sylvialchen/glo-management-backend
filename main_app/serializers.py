@@ -16,14 +16,6 @@ class MemberExperiencesSerializer(serializers.ModelSerializer):
                   'chapter_nb')
 
 
-class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Job_Opps_And_Referrals
-        fields = ('id', 'pub_date', 'job_title_txt', 'company_name_txt',
-                  'job_link_txt', 'remote_role_fg', 'city_txt', 'state_txt',
-                  'level_of_opening_txt', 'industry_nb', 'description_txt', 'poster_nb')
-
-
 class PositionsTitlesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Position_Titles
@@ -41,3 +33,13 @@ class SistersSerializer(serializers.ModelSerializer):
                   'current_city_txt', 'current_state_txt', 'current_country_txt',
                   'email_address_txt', 'coach_fg', 'current_position_txt', 'current_company_txt',
                   'linkedin_url_txt', 'expertise_interests_nb', 'summary_txt')
+
+
+class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
+    poster_nb = SistersSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Job_Opps_And_Referrals
+        fields = ('id', 'pub_date', 'job_title_txt', 'company_name_txt',
+                  'job_link_txt', 'remote_role_fg', 'city_txt', 'state_txt',
+                  'level_of_opening_txt', 'industry_nb', 'description_txt', 'poster_nb')
