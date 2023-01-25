@@ -24,6 +24,8 @@ class PositionsTitlesSerializer(serializers.ModelSerializer):
 
 
 class SistersSerializer(serializers.ModelSerializer):
+    crossing_class_txt = serializers.CharField(source='get_crossing_class_txt_display')
+    status_txt = serializers.CharField(source='get_status_txt_display')
     class Meta:
         model = Sister
         fields = ('id', 'first_name_txt', 'last_name_txt', 'nickname_txt',
