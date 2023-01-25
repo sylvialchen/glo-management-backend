@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences, Position_Titles
+from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences, Position_Titles, STATUS
 
 
 class ChapterSerializer(serializers.ModelSerializer):
@@ -28,6 +28,12 @@ class PositionsTitlesSerializer(serializers.ModelSerializer):
 class SistersSerializer(serializers.ModelSerializer):
     crossing_class_txt = serializers.CharField(source='get_crossing_class_txt_display')
     status_txt = serializers.CharField(source='get_status_txt_display')
+
+    # StringRelatedField calls the __str__ method on the corresponding model
+    # i.e., Chapter_nb is a FK to Chapter
+    chapter_nb = serializers.StringRelatedField(many=False)
+    crossing_chapter_nb = serializers.StringRelatedField(many=False)
+
     class Meta:
         model = Sister
         fields = ('id', 'first_name_txt', 'last_name_txt', 'nickname_txt',
@@ -35,8 +41,9 @@ class SistersSerializer(serializers.ModelSerializer):
                   'crossing_class_txt', 'crossing_date', 'initiation_date',
                   'line_nb', 'big_sister_nb', 'tree_txt', 'status_txt',
                   'current_city_txt', 'current_state_txt', 'current_country_txt',
-                  'email_address_txt', 'coach_fg', 'current_position_txt', 'current_company_txt',
-                  'linkedin_url_txt', 'expertise_interests_nb', 'summary_txt')
+                  'email_address_txt', 'coach_fg', 'current_position_txt',
+                  'current_company_txt', 'linkedin_url_txt',
+                  'expertise_interests_nb', 'summary_txt')
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
