@@ -3,6 +3,7 @@ from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences,
 
 
 class ChapterSerializer(serializers.ModelSerializer):
+    chapter_status_txt = serializers.CharField(source='get_chapter_status_txt_display')
     class Meta:
         model = Chapter
         fields = ('id', 'associate_chapter_fg', 'greek_letter_assigned_txt', 'chapter_school_txt',
@@ -17,6 +18,7 @@ class MemberExperiencesSerializer(serializers.ModelSerializer):
 
 
 class PositionsTitlesSerializer(serializers.ModelSerializer):
+    job_family_txt = serializers.CharField(source='get_job_family_txt_display')
     class Meta:
         model = Position_Titles
         fields = ('id', 'position_title_txt', 'active_fg', 'e_board_fg',
@@ -24,6 +26,9 @@ class PositionsTitlesSerializer(serializers.ModelSerializer):
 
 
 class SistersSerializer(serializers.ModelSerializer):
+    crossing_class_txt = serializers.CharField(source='get_crossing_class_txt_display')
+    status_txt = serializers.CharField(source='get_status_txt_display')
+
     # StringRelatedField calls the __str__ method on the corresponding model
     # i.e., Chapter_nb is a FK to Chapter
     chapter_nb = serializers.StringRelatedField(many=False)
@@ -42,6 +47,7 @@ class SistersSerializer(serializers.ModelSerializer):
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
+    level_of_opening_txt = serializers.CharField(source='get_level_of_opening_txt_display')
     poster_nb = SistersSerializer(many=False, read_only=True)
 
     class Meta:
