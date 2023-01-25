@@ -7,11 +7,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # In this case '' represents the root route
     path('', include('main_app.urls')),
-    path('api/chapters/', views.chapters_list),
-    path('api/chapters/edit/<int:id>', views.chapters_detail),
-    path('api/jobs/', views.jobs_list),
-    path('api/sisters/', views.sisters_list),
-    path('api/sisters/edit/<int:id>', views.sisters_detail),
-    path('api/experiences', views.experiences_list),
-    path('api/coaches', views.coach_list)
+    path('accounts/', include('django.contrib.auth.urls'))
 ]

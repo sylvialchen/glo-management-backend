@@ -69,6 +69,8 @@ class Chapter(models.Model):
     #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
 
     def __str__(self):
+        if self.associate_chapter_fg == True:
+            return f"Associate Chapter @ {self.chapter_school_txt}"
         return f"{self.greek_letter_assigned_txt} @ {self.chapter_school_txt}"
 
 
@@ -149,7 +151,7 @@ class Nickname_Request (models.Model):
     requestor_nb = models.ForeignKey(
         Sister, on_delete=models.SET_NULL, null=True)
     req_date = models.DateTimeField(
-        'date requested', auto_created=True, default=timezone.now())
+        'date requested', auto_created=True, default=timezone.now)
     nickname_approval_status_txt = models.CharField("Nickname Approval Status",
                                                     max_length=2,
                                                     choices=NICKNAME_STATUS,
@@ -170,7 +172,7 @@ class Nickname_Request (models.Model):
 
 class Job_Opps_And_Referrals(models.Model):
     pub_date = models.DateTimeField(
-        'date published', auto_created=True, default=timezone.now())
+        'date published', auto_created=True, default=timezone.now)
     job_title_txt = models.CharField(max_length=50)
     company_name_txt = models.CharField(max_length=50)
     job_link_txt = models.CharField(max_length=250)
