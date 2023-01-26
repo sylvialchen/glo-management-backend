@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils import timezone
 # from datetime import date
 import datetime
@@ -64,6 +65,8 @@ class Chapter(models.Model):
     recharter_date = models.DateField(null=True, blank=True)
     chapter_status_txt = models.CharField(
         max_length=2, choices=CHAPTER_STATUS, default=CHAPTER_STATUS[0][0])
+    org_website_txt = models.CharField(max_length=50, null=True)
+    school_website_txt = models.CharField(max_length=50, null=True)
 
     # def get_absolute_url(self):
     #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
@@ -108,7 +111,8 @@ class Sister(models.Model):
     current_state_txt = models.CharField(max_length=15, null=True)
     current_country_txt = models.CharField(max_length=15, null=True)
     email_address_txt = models.EmailField(max_length=30, null=True)
-    # User
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
     coach_fg = models.BooleanField(default=False)
     current_position_txt = models.CharField(
         max_length=30, blank=True, null=True)
@@ -207,7 +211,7 @@ class Position_Titles(models.Model):
 
 class Member_Experiences(models.Model):
     sister_nb = models.ForeignKey(
-        Sister, on_delete=models.CASCADE, null=True)
+        Sister, related_name='experiences', on_delete=models.CASCADE, null=True)
     position_nb = models.ForeignKey(
         Position_Titles, on_delete=models.CASCADE, null=True)
     start_date = models.DateField(null=False)
@@ -216,4 +220,4 @@ class Member_Experiences(models.Model):
         Chapter, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
-        return f"{self.sister_nb} held {self.position_nb} from {self.start_date} to {self.end_date}"
+        return f"{self.position_nb} from {self.start_date} to {self.end_date}"
