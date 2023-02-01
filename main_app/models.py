@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.conf import settings
 from django.utils import timezone
 # from datetime import date
@@ -54,74 +54,176 @@ JOB_FAMILY = (
     ("RE", "Recruiting"),
 )
 
+# create a new user
+# create a superuser
+
+class MyAccountManager(BaseUserManager):
+    def create_user(self,email, username, password:None):
+        if not email:
+            raise ValueError("Users must have an email address")
+        if not username:
+            raise ValueError("Users must have an username")
+        user = self.model(
+            # normalize makes this case insensitive
+            email = self.normalize_email(email),
+            username = username
+        )
+        user.set_password(password)
+        user.save(using=self.db)
+        return user
+    def create_superuser(self, email, username, password):
+        user = self.create_user(
+            email = self.normalize_email(email),
+            username = username,
+            password = password
+        )
+        user.is_admin = True
+        user.is_staff = True
+        user.is_super_user = True
+        user.save(using= self._db)
+        return user
+
+def get_profile_image_filepath(self, filename):
+    return f'profile_images/{self.pk}/profile_image.png'
+
+# set default picture here!
+def get_default_profile_image():
+    return f'<i class="bi bi-person"></i>'
+
+class Account(AbstractBaseUser):
+    email           = models.EmailField(
+                        verbose_name="email", 
+                        max_length=60, 
+                        unique=True)
+    username        = models.CharField(
+                        max_length=30, 
+                        unique=True)
+    date_joined     = models.DateTimeField(
+                        verbose_name="date_joined", 
+                        auto_now_add=True)
+    last_login      = models.DateTimeField(
+                        verbose_name="last login", 
+                        auto_now=True)
+    profile_image   = models.ImageField(
+                        max_length=255, 
+                        upload_to=get_profile_image_filepath, 
+                        null=True, 
+                        blank=True, 
+                        default=get_default_profile_image)
+    # these 4 fields need to be override from AbstractBaseUser!
+    is_admin        = models.BooleanField(default=False)
+    is_active       = models.BooleanField(default=True)
+    is_staff        = models.BooleanField(default=False)
+    is_superuser    = models.BooleanField(default=False)
+    hide_email      = models.BooleanField(default=True)
+    objects         = MyAccountManager()
+    USERNAME_FIELD  ='email' 
+    REQUIRED_FIELDS = ['username']
+
+    def __str__(self):
+        return self.username
+    
+    def get_profile_image_filename(self):
+        return str(self.profile_image) + str(self.profile_image).index(f'profile_images/{self.pk}/')
+    
+    # default functions to see if user has admin permissions, needs to be overriden
+    def has_perm(self, perm, obj = None):
+        return self.is_admin
+    def has_module_perms(self,app_label):
+        return True
 
 class Chapter(models.Model):
-    associate_chapter_fg = models.BooleanField(default=True)
-    greek_letter_assigned_txt = models.CharField(
-        max_length=15, blank=False, null=True)
-    chapter_school_txt = models.CharField(max_length=50)
-    city_state_txt = models.CharField(max_length=50)
-    original_founding_date = models.DateField()
-    recharter_date = models.DateField(null=True, blank=True)
-    chapter_status_txt = models.CharField(
-        max_length=2, choices=CHAPTER_STATUS, default=CHAPTER_STATUS[0][0])
-    org_website_txt = models.CharField(max_length=50, null=True)
-    school_website_txt = models.CharField(max_length=50, null=True)
-
-    # def get_absolute_url(self):
-    #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
+    associate_chapter_fg        = models.BooleanField(default=True)
+    greek_letter_assigned_txt   = models.CharField(
+                                    max_length=15, 
+                                    blank=False, 
+                                    null=True)
+    chapter_school_txt          = models.CharField(max_length=50)
+    city_state_txt              = models.CharField(max_length=50)
+    original_founding_date      = models.DateField()
+    recharter_date              = models.DateField(null=True, blank=True)
+    chapter_status_txt          = models.CharField(
+                                    max_length=2, 
+                                    choices=CHAPTER_STATUS, 
+                                    default=CHAPTER_STATUS[0][0])
+    org_website_txt             = models.CharField(max_length=50, null=True)
+    school_website_txt          = models.CharField(max_length=50, null=True)
 
     def __str__(self):
         if self.associate_chapter_fg == True:
             return f"Associate Chapter @ {self.chapter_school_txt}"
         return f"{self.greek_letter_assigned_txt} @ {self.chapter_school_txt}"
 
+    # def get_absolute_url(self):
+    #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
 
 class Industry(models.Model):
-    industry_txt = models.CharField(max_length=50)
+    industry_txt    = models.CharField(max_length=50)
 
 
 class Sister(models.Model):
-    first_name_txt = models.CharField(max_length=20)
-    last_name_txt = models.CharField(max_length=25)
-    nickname_txt = models.CharField(max_length=20)
-    nickname_meaning_txt = models.TextField(max_length=250)
-    chapter_nb = models.ForeignKey(
-        Chapter, on_delete=models.CASCADE, related_name='active_chapter')
-    crossing_chapter_nb = models.ForeignKey(
-        Chapter, on_delete=models.CASCADE, related_name='crossing_chapter', blank=True, null=True)
-    crossing_class_txt = models.CharField(
-        max_length=2,
-        choices=GREEK_CLASS,
-        default=None,
-    )
-    crossing_date = models.DateTimeField(
-        'crossing date', auto_created=False, default=None)
-    initiation_date = models.DateTimeField(
-        'PNM initiation date', auto_created=False, default=None)
-    line_nb = models.IntegerField(null=True)
-    big_sister_nb = models.ForeignKey(
-        'self', on_delete=models.CASCADE)
-    tree_txt = models.CharField(max_length=20, blank=True, null=True)
-    status_txt = models.CharField(
-        max_length=2,
-        choices=STATUS,
-        default=STATUS[0][0])
-    current_city_txt = models.CharField(max_length=15, null=True)
-    current_state_txt = models.CharField(max_length=15, null=True)
-    current_country_txt = models.CharField(max_length=15, null=True)
-    email_address_txt = models.EmailField(max_length=30, null=True)
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
-    coach_fg = models.BooleanField(default=False)
-    current_position_txt = models.CharField(
-        max_length=30, blank=True, null=True)
-    current_company_txt = models.CharField(
-        max_length=20, blank=True, null=True)
-    linkedin_url_txt = models.CharField(max_length=50, blank=True, null=True)
-    expertise_interests_nb = models.ForeignKey(
-        Industry, on_delete=models.CASCADE, blank=True, null=True)
-    summary_txt = models.TextField(max_length=250, blank=True, null=True)
+    first_name_txt          = models.CharField(max_length=20)
+    last_name_txt           = models.CharField(max_length=25)
+    nickname_txt            = models.CharField(max_length=20)
+    nickname_meaning_txt    = models.TextField(max_length=250)
+    chapter_nb              = models.ForeignKey(
+                                Chapter, 
+                                on_delete=models.CASCADE, related_name='active_chapter')
+    crossing_chapter_nb     = models.ForeignKey(
+                                Chapter, 
+                                on_delete=models.CASCADE, related_name='crossing_chapter', 
+                                blank=True, 
+                                null=True)
+    crossing_class_txt      = models.CharField(
+                                max_length=2,
+                                choices=GREEK_CLASS,
+                                default=None,
+                            )
+    crossing_date           = models.DateTimeField(
+                                'crossing date', 
+                                auto_created=False, 
+                                default=None)
+    initiation_date         = models.DateTimeField(
+                                'PNM initiation date', 
+                                auto_created=False, 
+                                default=None)
+    line_nb                 = models.IntegerField(null=True)
+    big_sister_nb           = models.ForeignKey(
+                                'self', 
+                                on_delete=models.CASCADE)
+    tree_txt                = models.CharField(
+                                max_length=20, 
+                                blank=True, 
+                                null=True)
+    status_txt              = models.CharField(
+                                max_length=2,
+                                choices=STATUS,
+                                default=STATUS[0][0])
+    current_city_txt        = models.CharField(max_length=15, null=True)
+    current_state_txt       = models.CharField(max_length=15, null=True)
+    current_country_txt     = models.CharField(max_length=15, null=True)
+    email_address_txt       = models.EmailField(max_length=30, null=True)
+    # user                  = models.OneToOneField(
+    #                           settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
+    coach_fg                = models.BooleanField(default=False)
+    current_position_txt    = models.CharField(
+                                max_length=30, 
+                                blank=True, 
+                                null=True)
+    current_company_txt     = models.CharField(
+                                max_length=20, 
+                                blank=True, 
+                                null=True)
+    linkedin_url_txt        = models.CharField(
+                                max_length=50, 
+                                blank=True, 
+                                null=True)
+    expertise_interests_nb  = models.ForeignKey(
+                                Industry, 
+                                on_delete=models.CASCADE, 
+                                blank=True, 
+                                null=True)
+    summary_txt             = models.TextField(max_length=250, blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name_txt} {self.last_name_txt} - {self.nickname_txt}"
@@ -131,15 +233,20 @@ class Sister(models.Model):
 
 
 class Pnm(models.Model):
-    first_name_txt = models.CharField(max_length=20)
-    last_name_txt = models.CharField(max_length=25)
+    first_name_txt     = models.CharField(max_length=20)
+    last_name_txt      = models.CharField(max_length=25)
     process_chapter_nb = models.ForeignKey(
-        Chapter, on_delete=models.PROTECT, related_name='process_chapter', blank=True, null=True)
-    # process_semester = models.CharField(max_length=6)
-    # process_year = models.PositiveSmallIntegerField()
+                            Chapter, 
+                            on_delete=models.PROTECT, related_name='process_chapter', 
+                            blank=True, 
+                            null=True)
+    # process_semester  = models.CharField(max_length=6)
+    # process_year      = models.PositiveSmallIntegerField()
     # potential_line_nb = models.PositiveSmallIntegerField()
-    big_sister_nb = models.ForeignKey(
-        Sister, on_delete=models.SET_NULL, null=True)
+    big_sister_nb       = models.ForeignKey(
+                            Sister, 
+                            on_delete=models.SET_NULL, 
+                            null=True)
 
     def __str__(self):
         return f"PNM {self.first_name_txt}"
@@ -149,20 +256,26 @@ class Pnm(models.Model):
 
 
 class Nickname_Request (models.Model):
-    name_txt = models.CharField("nickname request", max_length=20)
-    nickname_meaning_txt = models.TextField(max_length=250)
-    pnm_nb = models.ForeignKey(Pnm, on_delete=models.CASCADE, null=True)
-    requestor_nb = models.ForeignKey(
-        Sister, on_delete=models.SET_NULL, null=True)
-    req_date = models.DateTimeField(
-        'date requested', auto_created=True, default=timezone.now)
-    nickname_approval_status_txt = models.CharField("Nickname Approval Status",
-                                                    max_length=2,
-                                                    choices=NICKNAME_STATUS,
-                                                    default=NICKNAME_STATUS[0][0])
-    # def was_requested_recently(self):
-    #     now = timezone.now()
-    #     return now - datetime.timedelta(days=1) <= self.req_date <= now
+    name_txt                        = models.CharField(
+                                        "nickname request",                  max_length=20)
+    nickname_meaning_txt            = models.TextField(max_length=250)
+    pnm_nb                          = models.ForeignKey(
+                                        Pnm, 
+                                        on_delete=models.CASCADE, 
+                                        null=True)
+    requestor_nb                    = models.ForeignKey(
+                                        Sister, 
+                                        on_delete=models.SET_NULL, 
+                                        null=True)
+    req_date                        = models.DateTimeField(
+                                        'date requested', 
+                                        auto_created=True, 
+                                        default=timezone.now)
+    nickname_approval_status_txt    = models.CharField(
+                                        "Nickname Approval Status",
+                                        max_length=2,
+                                        choices=NICKNAME_STATUS,
+                                        default=NICKNAME_STATUS[0][0])
 
     def __str__(self):
         return f"PNM {self.name_txt}"
@@ -175,49 +288,62 @@ class Nickname_Request (models.Model):
 
 
 class Job_Opps_And_Referrals(models.Model):
-    pub_date = models.DateTimeField(
-        'date published', auto_created=True, default=timezone.now)
-    job_title_txt = models.CharField(max_length=50)
-    company_name_txt = models.CharField(max_length=50)
-    job_link_txt = models.CharField(max_length=250)
-    remote_role_fg = models.BooleanField(default=False)
-    city_txt = models.CharField(max_length=15, null=True)
-    state_txt = models.CharField(max_length=15, null=True)
-    level_of_opening_txt = models.CharField(max_length=2,
-                                            choices=JOB_LEVEL,
-                                            default=JOB_LEVEL[0][0])
-    industry_nb = models.ForeignKey(
-        Industry, on_delete=models.SET_NULL, null=True)
-    description_txt = models.TextField(max_length=250)
-    poster_nb = models.ForeignKey(Sister, on_delete=models.CASCADE, null=True)
+    pub_date                = models.DateTimeField(
+                                'date published', 
+                                auto_created=True, 
+                                default=timezone.now)
+    job_title_txt           = models.CharField(max_length=50)
+    company_name_txt        = models.CharField(max_length=50)
+    job_link_txt            = models.CharField(max_length=250)
+    remote_role_fg          = models.BooleanField(default=False)
+    city_txt                = models.CharField(max_length=15, null=True)
+    state_txt               = models.CharField(max_length=15, null=True)
+    level_of_opening_txt    = models.CharField(max_length=2,
+                                choices=JOB_LEVEL,
+                                default=JOB_LEVEL[0][0])
+    industry_nb             = models.ForeignKey(
+                                Industry, 
+                                on_delete=models.SET_NULL, 
+                                null=True)
+    description_txt         = models.TextField(max_length=250)
+    poster_nb               = models.ForeignKey(Sister, 
+                                on_delete=models.CASCADE,
+                                null=True)
 
     def __str__(self):
         return f"{self.job_title_txt} @ {self.company_name_txt}"
 
 
 class Position_Titles(models.Model):
-    position_title_txt = models.CharField(max_length=50)
-    active_fg = models.BooleanField(default=False)
-    e_board_fg = models.BooleanField(default=False)
-    description_txt = models.TextField(max_length=250)
-    job_family_txt = models.CharField(
-        max_length=2,
-        choices=JOB_FAMILY,
-        default=JOB_FAMILY[0][0])
+    position_title_txt  = models.CharField(max_length=50)
+    active_fg           = models.BooleanField(default=False)
+    e_board_fg          = models.BooleanField(default=False)
+    description_txt     = models.TextField(max_length=250)
+    job_family_txt      = models.CharField(
+                            max_length=2,
+                            choices=JOB_FAMILY,
+                            default=JOB_FAMILY[0][0])
 
     def __str__(self):
         return f"{self.position_title_txt}, active: {self.active_fg} part of {self.job_family_txt} job family"
 
 
 class Member_Experiences(models.Model):
-    sister_nb = models.ForeignKey(
-        Sister, related_name='experiences', on_delete=models.CASCADE, null=True)
-    position_nb = models.ForeignKey(
-        Position_Titles, on_delete=models.CASCADE, null=True)
-    start_date = models.DateField(null=False)
-    end_date = models.DateField(null=False)
-    chapter_nb = models.ForeignKey(
-        Chapter, on_delete=models.CASCADE, null=False)
+    sister_nb       = models.ForeignKey(
+                        Sister, 
+                        related_name='experiences', 
+                        on_delete=models.CASCADE, 
+                        null=True)
+    position_nb     = models.ForeignKey(
+                        Position_Titles, 
+                        on_delete=models.CASCADE, 
+                        null=True)
+    start_date      = models.DateField(null=False)
+    end_date        = models.DateField(null=False)
+    chapter_nb      = models.ForeignKey(
+                        Chapter, 
+                        on_delete=models.CASCADE, 
+                        null=False)
 
     def __str__(self):
         return f"{self.position_nb} from {self.start_date} to {self.end_date}"
