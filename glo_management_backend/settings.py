@@ -27,7 +27,12 @@ SECRET_KEY = "django-insecure-c$+ki6vvo%r2uh)ea0+pprc6*g7j$(+qa2k=*0s1o_tb&jy=!v
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+# Tells Django that the default model for authentication is main_app.Account
+AUTH_USER_MODEL = "main_app.Account"
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.AllowAllUsersModelBackend',
+    'main_app.backends.CaseInsensitiveModelBackend'
+)
 
 # Application definition
 
