@@ -1,19 +1,23 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from main_app.models import Account
+# from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth import get_user_model
+from authemail.admin import EmailUserAdmin
+# from main_app.models import Account
 
 # Register your models here.
 
-class AccountAdmin(UserAdmin):
-    # Account page setup
-    list_display    = ('username', 'date_joined', 'last_login', 'is_admin', 'is_staff')
-    search_fields   = ('username', )
-    readonly_fields = ('id', 'date_joined', 'last_login')
+class MyUserAdmin(EmailUserAdmin):
+	fieldsets = (
+		(None, {'fields': ('email', 'password')}),
+		('Personal Info', {'fields': ('first_name', 'last_name')}),
+		('Permissions', {'fields': ('is_active', 'is_staff', 
+									   'is_superuser', 'is_verified', 
+									   'groups', 'user_permissions')}),
+		('Important dates', {'fields': ('last_login', 'date_joined')}),
+		# ('Custom info', {'fields': ('date_of_birth',)}),
+	)
 
-    # required fields
-    filter_horizontal = ()
-    list_filter = ()
-    fieldsets = ()
+admin.site.unregister(get_user_model())
+admin.site.register(get_user_model(), MyUserAdmin)
 
 
-admin.site.register(Account, AccountAdmin)
