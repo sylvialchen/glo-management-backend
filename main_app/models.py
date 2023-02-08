@@ -1,14 +1,7 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.conf import settings
 from django.utils import timezone
 from authemail.models import EmailUserManager, EmailAbstractUser
-# from datetime import date
-import datetime
-# from psycopg2 import Date
-
-# Create your models here.
 
 STATUS = (
     ("AC", "Active"),
@@ -60,7 +53,7 @@ class MyUser(EmailAbstractUser):
 	# date_of_birth = models.DateField('Date of birth', null=True, blank=True)
 
 	# Required
-	objects = EmailUserManager()
+	objects     =   EmailUserManager()
 
 
 class Chapter(models.Model):
