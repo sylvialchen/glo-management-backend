@@ -1,13 +1,7 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.conf import settings
 from django.utils import timezone
-# from datetime import date
-import datetime
-# from psycopg2 import Date
-
-# Create your models here.
+from authemail.models import EmailUserManager, EmailAbstractUser
 
 STATUS = (
     ("AC", "Active"),
@@ -54,82 +48,13 @@ JOB_FAMILY = (
     ("RE", "Recruiting"),
 )
 
-# create a new user
-# create a superuser
+class MyUser(EmailAbstractUser):
+	# Custom fields
+	# date_of_birth = models.DateField('Date of birth', null=True, blank=True)
 
-class MyAccountManager(BaseUserManager):
-    def create_user(self, username, password:None):
-        if not username:
-            raise ValueError("Users must have an email address")
-        user = self.model(
-            # normalize makes this case insensitive
-            username = self.normalize_email(username),
-            email = username,
-        )
-        user.set_password(password)
-        user.save(using=self.db)
-        return user
-    def create_superuser(self, username, password):
-        user = self.create_user(
-            username = self.normalize_email(username),
-            email = username,
-            password = password
-        )
-        user.is_admin = True
-        user.is_staff = True
-        user.is_super_user = True
-        user.save(using= self._db)
-        return user
+	# Required
+	objects     =   EmailUserManager()
 
-def get_profile_image_filepath(self, filename):
-    return f'profile_images/{self.pk}/profile_image.png'
-
-# set default picture here!
-def get_default_profile_image():
-    return f'<i class="bi bi-person"></i>'
-
-class Account(AbstractBaseUser):
-    email           = models.EmailField(
-                        verbose_name="Required Field, Must Match Email", 
-                        max_length=60, 
-                        unique=True)
-    username        = models.EmailField(
-                        verbose_name="Email", 
-                        max_length=60, 
-                        unique=True)
-    date_joined     = models.DateTimeField(
-                        verbose_name="date_joined", 
-                        auto_now_add=True)
-    last_login      = models.DateTimeField(
-                        verbose_name="last login", 
-                        auto_now=True)
-    profile_image   = models.ImageField(
-                        max_length=255, 
-                        upload_to=get_profile_image_filepath, 
-                        null=True, 
-                        blank=True, 
-                        default=get_default_profile_image)
-    # these 4 fields need to be override from AbstractBaseUser!
-    is_admin        = models.BooleanField(default=False)
-    is_active       = models.BooleanField(default=True)
-    is_staff        = models.BooleanField(default=False)
-    is_superuser    = models.BooleanField(default=False)
-    hide_email      = models.BooleanField(default=True)
-    objects         = MyAccountManager()
-    USERNAME_FIELD  ='username' 
-    REQUIRED_FIELDS = ['']
-
-    def __str__(self):
-        return self.username
-    
-    def get_profile_image_filename(self):
-        return str(self.profile_image) + str(self.profile_image).index(f'profile_images/{self.pk}/')
-    
-    # default functions to see if user has admin permissions, needs to be overriden
-    def has_perm(self, perm, obj = None):
-        return self.is_admin
-    def has_module_perms(self,app_label):
-        return True
 
 class Chapter(models.Model):
     associate_chapter_fg        = models.BooleanField(default=True)
