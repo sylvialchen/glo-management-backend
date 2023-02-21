@@ -3,11 +3,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 # from django.views.generic.edit import CreateView, UpdateView, DeleteView
 # from django.views.generic.detail import DetailView
-from .models import Chapter, Sister, Pnm, Nickname_Request, Job_Opps_And_Referrals, Member_Experiences
+
+from .models import Chapter, Chapter_Stats, Sister, Pnm, Nickname_Request, Job_Opps_And_Referrals, Member_Experiences
+from .serializers import ChapterSerializer, JobOppsAndReferralsSerializer, SistersSerializer, MemberExperiencesSerializer, ChapterStatsSerializer
+
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .serializers import ChapterSerializer, JobOppsAndReferralsSerializer, SistersSerializer, MemberExperiencesSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status

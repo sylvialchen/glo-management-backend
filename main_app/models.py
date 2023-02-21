@@ -5,6 +5,7 @@ from authemail.models import EmailUserManager, EmailAbstractUser
 
 STATUS = (
     ("AC", "Active"),
+    ("IA", "Inactive"),
     ("AL", "Alumnae"),
     ("DE", "Deceased"),
 )
@@ -271,3 +272,14 @@ class Member_Experiences(models.Model):
 
     def __str__(self):
         return f"{self.position_nb} from {self.start_date} to {self.end_date}"
+
+
+class Chapter_Stats(models.Model):
+    active_nb           = models.PositiveIntegerField()
+    inactive_nb         = models.PositiveIntegerField()
+    alumni_nb           = models.PositiveIntegerField()
+    deceased_nb         = models.PositiveIntegerField()
+    total_crossed_nb    = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"Active: {self.active_nb}, Inactive: {self.inactive_nb}, Alumni: {self.alumni_nb}, Deceased: {self.deceased_nb}, Total: {self.total_crossed_nb}"
