@@ -1,16 +1,41 @@
 from rest_framework import serializers
-from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences, Position_Titles
+from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences, Position_Titles, Chapter_Stats
+
+
+class ChapterStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter_Stats
+        fields = ('active_nb', 'inactive_nb', 'alumni_nb', 'deceased_nb', 'total_crossed_nb')
 
 
 class ChapterSerializer(serializers.ModelSerializer):
-    # chapter_status_txt = serializers.CharField(
-    #     source='get_chapter_status_txt_display')
+    chapter_status_txt = serializers.CharField(
+        source='get_chapter_status_txt_display')
+    chapter_stats = serializers.SerializerMethodField()
 
     class Meta:
         model = Chapter
         fields = ('id', 'associate_chapter_fg', 'greek_letter_assigned_txt', 'chapter_school_txt',
-                  'city_state_txt', 'original_founding_date', 'recharter_date', 'chapter_status_txt')
+                  'city_state_txt', 'original_founding_date', 'recharter_date', 'chapter_status_txt', 'chapter_stats')
 
+    def get_chapter_stats(self, obj):
+        active_nb           =   len(Sister.objects.filter(chapter_nb_id=obj.id, status_txt="AC"))
+        inactive_nb         =   len(Sister.objects.filter(chapter_nb_id=obj.id, status_txt="IA"))
+        alumni_nb           =   len(Sister.objects.filter(chapter_nb_id=obj.id, status_txt="AL"))
+        deceased_nb         =   len(Sister.objects.filter(chapter_nb_id=obj.id, status_txt="DE"))
+        total_crossed_nb    =   active_nb + inactive_nb + alumni_nb + deceased_nb
+        
+        chapter_stats = Chapter_Stats(
+            active_nb           =   active_nb,
+            inactive_nb         =   inactive_nb,
+            alumni_nb           =   alumni_nb,
+            deceased_nb         =   deceased_nb,
+            total_crossed_nb    =   total_crossed_nb
+        )        
+
+        serializer = ChapterStatsSerializer(chapter_stats)
+        
+        return serializer.data
 
 class MemberExperiencesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,10 +54,10 @@ class PositionsTitlesSerializer(serializers.ModelSerializer):
 
 
 class SistersSerializer(serializers.ModelSerializer):
-    # crossing_class_txt = serializers.CharField(
-    #     source='get_crossing_class_txt_display')
-    # status_txt = serializers.CharField(source='get_status_txt_display')
-    # chapter_nb = ChapterSerializer(many=False, read_only=True)
+    crossing_class_txt = serializers.CharField(
+        source='get_crossing_class_txt_display')
+    status_txt = serializers.CharField(source='get_status_txt_display')
+    chapter_nb = ChapterSerializer(many=False, read_only=True)
     crossing_chapter_nb = ChapterSerializer(many=False, read_only=True)
     experiences = MemberExperiencesSerializer(many=True, read_only=True)
     # StringRelatedField calls the __str__ method on the corresponding model
