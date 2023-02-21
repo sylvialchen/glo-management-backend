@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import environ
 import os
+from django.db import connections
+
+
 
 # Initialise environment variables
 env = environ.Env()
@@ -103,10 +106,10 @@ WSGI_APPLICATION = "glo_management_backend.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get(env('DATABASE_NAME')),
-        'USER': os.environ.get(env('DATABASE_USER')),
-        'PASSWORD': os.environ.get(env('DATABASE_PASSWORD')),
-        'HOST': 'localhost',
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
         'PORT': 5432,
     }
 }
@@ -166,3 +169,13 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+def verify_connection():
+    try:
+        cursor = connections['default'].cursor()
+        cursor.execute("SELECT 1")
+        return True
+    except Exception:
+        return False
+
+print(verify_connection())
