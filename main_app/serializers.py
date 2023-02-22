@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences, Position_Titles, Chapter_Stats
+from .models import Chapter, Job_Opps_And_Referrals, Sister, Member_Experiences, Position_Titles, Chapter_Stats, Events
 
 
 class ChapterStatsSerializer(serializers.ModelSerializer):
@@ -54,10 +54,10 @@ class PositionsTitlesSerializer(serializers.ModelSerializer):
 
 
 class SistersSerializer(serializers.ModelSerializer):
-    crossing_class_txt = serializers.CharField(
-        source='get_crossing_class_txt_display')
-    status_txt = serializers.CharField(source='get_status_txt_display')
-    chapter_nb = ChapterSerializer(many=False, read_only=True)
+    # crossing_class_txt = serializers.CharField(
+    #     source='get_crossing_class_txt_display')
+    # status_txt = serializers.CharField(source='get_status_txt_display')
+    # chapter_nb = ChapterSerializer(many=False, read_only=True)
     crossing_chapter_nb = ChapterSerializer(many=False, read_only=True)
     experiences = MemberExperiencesSerializer(many=True, read_only=True)
     # StringRelatedField calls the __str__ method on the corresponding model
@@ -86,3 +86,8 @@ class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
         fields = ('id', 'pub_date', 'job_title_txt', 'company_name_txt',
                   'job_link_txt', 'remote_role_fg', 'city_txt', 'state_txt',
                   'level_of_opening_txt', 'industry_nb', 'description_txt', 'poster_nb')
+
+class EventsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Events
+        fields = ('id', 'national_event', 'name', 'date', 'location', 'url', 'description', 'category', 'host_chapter')

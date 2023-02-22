@@ -4,8 +4,8 @@ from django.http import HttpResponse
 # from django.views.generic.edit import CreateView, UpdateView, DeleteView
 # from django.views.generic.detail import DetailView
 
-from .models import Chapter, Chapter_Stats, Sister, Pnm, Nickname_Request, Job_Opps_And_Referrals, Member_Experiences
-from .serializers import ChapterSerializer, JobOppsAndReferralsSerializer, SistersSerializer, MemberExperiencesSerializer, ChapterStatsSerializer
+from .models import Chapter, Chapter_Stats, Sister, Pnm, Nickname_Request, Job_Opps_And_Referrals, Member_Experiences, Events
+from .serializers import ChapterSerializer, JobOppsAndReferralsSerializer, SistersSerializer, MemberExperiencesSerializer, ChapterStatsSerializer, EventsSerializer
 
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required, permission_required
@@ -129,6 +129,20 @@ def experiences_list(request):
         return Response(serializer.data)
     elif request.method == 'POST':
         serializer = MemberExperiencesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+def events_list(request):
+    if request.method == 'GET':
+        events = Events.objects.all()
+        serializer = EventsSerializer(events, context={'request': request}, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = EventsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_201_CREATED)
