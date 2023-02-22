@@ -49,6 +49,14 @@ JOB_FAMILY = (
     ("RE", "Recruiting"),
 )
 
+EVENT = (
+    ("FU", "Fundraising"),
+    ("SE", "Service"),
+    ("PR", "Professional"),
+    ("SI", "Sisterhood"),
+    ("ED", "Educational"),
+)
+
 class MyUser(EmailAbstractUser):
 	# Custom fields
 	# date_of_birth = models.DateField('Date of birth', null=True, blank=True)
@@ -283,3 +291,22 @@ class Chapter_Stats(models.Model):
 
     def __str__(self):
         return f"Active: {self.active_nb}, Inactive: {self.inactive_nb}, Alumni: {self.alumni_nb}, Deceased: {self.deceased_nb}, Total: {self.total_crossed_nb}"
+
+
+class Events(models.Model):
+    national_event  =   models.BooleanField(default=False)
+    name            =   models.CharField(max_length=250)
+    date            =   models.DateField(null=True, blank=True)
+    location        =   models.CharField(max_length=50)
+    url             =   models.CharField(max_length=500, null=True, blank=True)
+    description     =   models.CharField(max_length=500, null=True, blank=True)
+    category        =   models.CharField(max_length=2, choices=EVENT, null=True, blank=True)
+
+    host_chapter    =   models.ForeignKey(
+                            Chapter,
+                            on_delete=models.CASCADE,
+                            null=True,
+                            blank= True)
+
+    def __str__(self):
+        return f"National Event: {self.national_event}, Host: {self.host_chapter}, Name: {self.name}, Date: {self.date}, Location: {self.location}, URL: {self.url}, Description: {self.description}, Category: {self.category}"
