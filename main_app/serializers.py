@@ -124,12 +124,12 @@ class SistersSerializer(serializers.ModelSerializer):
         ]
 
 
-# class ExtendedUserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = get_user_model()
-#         fields = ("id", "email", "first_name", "last_name", "member_nb")
+class ExtendedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ("email", "first_name", "last_name", "member_nb")
 
-#     member = SistersSerializer(id="member_nb", many=False, read_only=True)
+    member_nb = SistersSerializer(many=False, read_only=True)
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):

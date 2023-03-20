@@ -1,10 +1,6 @@
 from hashlib import new
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-
-# from django.views.generic.edit import CreateView, UpdateView, DeleteView
-# from django.views.generic.detail import DetailView
-
+from django.http import HttpResponse, HttpRequest
 from .models import (
     Chapter,
     Chapter_Stats,
@@ -22,6 +18,7 @@ from .serializers import (
     MemberExperiencesSerializer,
     ChapterStatsSerializer,
     EventsSerializer,
+    ExtendedUserSerializer
 )
 
 from django.views.generic import ListView
@@ -37,6 +34,10 @@ from rest_framework import status
 
 # from rest_framework import viewsets
 
+@api_view(["GET"])
+def extended_user_me(request):
+    serializer = ExtendedUserSerializer(request.user)
+    return Response(serializer.data)
 
 # Serialized Views
 @api_view(["GET", "POST"])
@@ -56,7 +57,6 @@ def chapters_list(request):
         #     queryset = Chapter.objects.all()
 
         # Define the home view
-
 
 @api_view(["PUT", "DELETE"])
 def chapters_detail(request, id):
