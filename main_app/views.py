@@ -28,7 +28,11 @@ from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework import status
 
 # from rest_framework import viewsets

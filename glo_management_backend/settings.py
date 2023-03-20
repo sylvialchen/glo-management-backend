@@ -40,13 +40,15 @@ AUTH_USER_MODEL = "main_app.MyUser"
 #     'django.contrib.auth.backends.AllowAllUsersModelBackend',
 #     'main_app.backends.CaseInsensitiveModelBackend'
 # )
+# Application definition
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.TokenAuthentication",
-        # 'rest_framework.authentication.SessionAuthentication',
-    )
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    # 'DEFAULT_TOKEN_SERIALIZER': 'main_app.serializers.CustomTokenSerializer',
 }
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -104,12 +106,20 @@ WSGI_APPLICATION = "glo_management_backend.wsgi.application"
 
 DATABASES = {
     "default": {
+        # local setup
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DATABASE_NAME"),
-        "USER": env("DATABASE_USER"),
-        "PASSWORD": env("DATABASE_PASSWORD"),
-        "HOST": env("DATABASE_HOST"),
+        "NAME": os.environ.get("kplsisternicknames"),
+        "USER": os.environ.get("sylvialchen"),
+        "PASSWORD": os.environ.get("password"),
+        "HOST": "localhost",
         "PORT": 5432,
+        # deployed setup
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': env('DATABASE_NAME'),
+        # 'USER': env('DATABASE_USER'),
+        # 'PASSWORD': env('DATABASE_PASSWORD'),
+        # 'HOST': env('DATABASE_HOST'),
+        # 'PORT': 5432,
     }
 }
 

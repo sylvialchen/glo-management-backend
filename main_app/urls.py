@@ -11,4 +11,5 @@ urlpatterns = [
     path("api/experiences", views.experiences_list),
     path("api/coaches", views.coach_list),
     path("api/events/", views.events_list),
+    # path("user/me/", views.ExtendedUserMe, name="authemail-me"),
 ]

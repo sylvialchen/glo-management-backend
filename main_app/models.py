@@ -2,6 +2,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from authemail.models import EmailUserManager, EmailAbstractUser
+from django.conf import settings
+
 
 STATUS = (
     ("AC", "Active"),
@@ -81,14 +83,6 @@ EVENT = (
 )
 
 
-class MyUser(EmailAbstractUser):
-    # Custom fields
-    # date_of_birth = models.DateField('Date of birth', null=True, blank=True)
-
-    # Required
-    objects = EmailUserManager()
-
-
 class Chapter(models.Model):
     associate_chapter_fg = models.BooleanField(default=True)
     greek_letter_assigned_txt = models.CharField(max_length=15, blank=False, null=True)
@@ -165,6 +159,15 @@ class Sister(models.Model):
 
     # def get_absolute_url(self):
     #     return reverse('sister_detail', kwargs={'sister_id': self.id})
+
+
+class MyUser(EmailAbstractUser):
+    # Custom fields
+    member_nb = models.OneToOneField(
+        Sister, blank=True, null=True, on_delete=models.DO_NOTHING
+    )
+    # Required
+    objects = EmailUserManager()
 
 
 class Pnm(models.Model):
