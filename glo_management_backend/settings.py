@@ -16,7 +16,6 @@ import os
 from django.db import connections
 
 
-
 # Initialise environment variables
 env = environ.Env()
 environ.Env.read_env()
@@ -29,25 +28,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 # Tells Django that the default model for authentication is main_app.MyUser
-AUTH_USER_MODEL = 'main_app.MyUser'
+AUTH_USER_MODEL = "main_app.MyUser"
 # AUTHENTICATION_BACKENDS = (
 #     'django.contrib.auth.backends.AllowAllUsersModelBackend',
 #     'main_app.backends.CaseInsensitiveModelBackend'
 # )
-REST_FRAMEWORK = {
-	'DEFAULT_AUTHENTICATION_CLASSES': (
-		'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-	)
-}
 # Application definition
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    # 'DEFAULT_TOKEN_SERIALIZER': 'main_app.serializers.CustomTokenSerializer',
+}
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -56,11 +57,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'main_app',
-    'rest_framework',
+    "main_app",
+    "rest_framework",
     "corsheaders",
-    'authemail',
-    'rest_framework.authtoken'
+    "authemail",
+    "rest_framework.authtoken",
 ]
 
 MIDDLEWARE = [
@@ -104,13 +105,21 @@ WSGI_APPLICATION = "glo_management_backend.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DATABASE_NAME'),
-        'USER': env('DATABASE_USER'),
-        'PASSWORD': env('DATABASE_PASSWORD'),
-        'HOST': env('DATABASE_HOST'),
-        'PORT': 5432,
+    "default": {
+        # local setup
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("kplsisternicknames"),
+        "USER": os.environ.get("sylvialchen"),
+        "PASSWORD": os.environ.get("password"),
+        "HOST": "localhost",
+        "PORT": 5432,
+        # deployed setup
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': env('DATABASE_NAME'),
+        # 'USER': env('DATABASE_USER'),
+        # 'PASSWORD': env('DATABASE_PASSWORD'),
+        # 'HOST': env('DATABASE_HOST'),
+        # 'PORT': 5432,
     }
 }
 
@@ -160,22 +169,24 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Email settings
 # https://docs.djangoproject.com/en/3.1/topics/email/
 # https://docs.djangoproject.com/en/3.1/ref/settings/#email-host
-EMAIL_FROM = env('EMAIL_FROM')
-EMAIL_BCC = env('EMAIL_BCC')
+EMAIL_FROM = env("EMAIL_FROM")
+EMAIL_BCC = env("EMAIL_BCC")
 
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
+
 def verify_connection():
     try:
-        cursor = connections['default'].cursor()
+        cursor = connections["default"].cursor()
         cursor.execute("SELECT 1")
         return True
     except Exception:
         return False
+
 
 print(verify_connection())
