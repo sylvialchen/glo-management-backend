@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("main_app", "0003_alter_sister_big_sister_nb"),
     ]
