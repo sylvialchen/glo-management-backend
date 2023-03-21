@@ -1,8 +1,19 @@
-from hashlib import new
-from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpRequest
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
+from rest_framework import status
+from rest_framework.views import APIView
 from .models import (
     Chapter,
+    Industry,
     Chapter_Stats,
     Sister,
     Pnm,
@@ -10,6 +21,7 @@ from .models import (
     Job_Opps_And_Referrals,
     Member_Experiences,
     Events,
+    Position_Titles,
 )
 from .serializers import (
     ChapterSerializer,
@@ -18,153 +30,136 @@ from .serializers import (
     MemberExperiencesSerializer,
     ChapterStatsSerializer,
     EventsSerializer,
-    ExtendedUserSerializer
+    ExtendedUserSerializer,
+    PositionsTitlesSerializer,
 )
 
-from django.views.generic import ListView
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from rest_framework.response import Response
-from rest_framework.decorators import (
-    api_view,
-    authentication_classes,
-    permission_classes,
-)
-from rest_framework import status
 
-# from rest_framework import viewsets
-
-@api_view(["GET"])
-def extended_user_me(request):
-    serializer = ExtendedUserSerializer(request.user)
-    return Response(serializer.data)
-
-# Serialized Views
-@api_view(["GET", "POST"])
-def chapters_list(request):
-    if request.method == "GET":
-        data = Chapter.objects.all()
-        serializer = ChapterSerializer(data, context={"request": request}, many=True)
+class ExtendedUserMe(APIView):
+    def get(self, request):
+        serializer = ExtendedUserSerializer(request.user)
         return Response(serializer.data)
-    elif request.method == "POST":
-        serializer = ChapterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # class ChapterView(LoginRequiredMixin, viewsets.ModelViewSet):
-        #     serializer_class = ChapterSerializer
-        #     queryset = Chapter.objects.all()
-
-        # Define the home view
-
-@api_view(["PUT", "DELETE"])
-def chapters_detail(request, id):
-    try:
-        chapter = Chapter.objects.get(id=id)
-    except Chapter.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == "PUT":
-        serializer = ChapterSerializer(
-            chapter, data=request.data, context={"request": request}
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET", "POST"])
-def jobs_list(request):
-    if request.method == "GET":
-        data = Job_Opps_And_Referrals.objects.all()
-        serializer = JobOppsAndReferralsSerializer(
-            data, context={"request": request}, many=True
-        )
-        return Response(serializer.data)
-    elif request.method == "POST":
-        serializer = JobOppsAndReferralsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET", "POST"])
-def sisters_list(request):
-    if request.method == "GET":
-        data = Sister.objects.all()
-        serializer = SistersSerializer(data, context={"request": request}, many=True)
-        return Response(serializer.data)
-    elif request.method == "POST":
-        serializer = SistersSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["PUT", "DELETE"])
-def sisters_detail(request, id):
-    try:
-        sister = Sister.objects.get(id=id)
-    except Sister.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == "PUT":
-        serializer = SistersSerializer(
-            sister, data=request.data, context={"request": request}
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # elif request.method == 'DELETE':
-    #     sister.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(["GET"])
-def coach_list(request):
-    if request.method == "GET":
+class CoachListView(APIView):
+    def get(self, request):
         data = Sister.objects.filter(coach_fg=True)
         serializer = SistersSerializer(data, context={"request": request}, many=True)
         return Response(serializer.data)
-    # elif request.method == 'POST':
-    #     serializer = SistersSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET", "POST"])
-def experiences_list(request):
-    if request.method == "GET":
-        experiences = Member_Experiences.objects.all()
-        serializer = MemberExperiencesSerializer(
-            experiences, context={"request": request}, many=True
+class BaseViewAllApi(APIView):
+    model = None
+    serializer_class = None
+
+    def get(self, request):
+        data = self.model.objects.all()
+        serializer = self.serializer_class(
+            data, context={"request": request}, many=True
         )
         return Response(serializer.data)
-    elif request.method == "POST":
-        serializer = MemberExperiencesSerializer(data=request.data)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET", "POST"])
-def events_list(request):
-    if request.method == "GET":
-        events = Events.objects.all()
-        serializer = EventsSerializer(events, context={"request": request}, many=True)
+class ChapterView(BaseViewAllApi):
+    model = Chapter
+    serializer_class = ChapterSerializer
+
+
+class JobOppsAndReferralsView(BaseViewAllApi):
+    model = Job_Opps_And_Referrals
+    serializer_class = JobOppsAndReferralsSerializer
+
+
+class SisterView(BaseViewAllApi):
+    model = Sister
+    serializer_class = SistersSerializer
+
+
+class MemberExperiencesView(BaseViewAllApi):
+    model = Member_Experiences
+    serializer_class = MemberExperiencesSerializer
+
+
+class EventsView(BaseViewAllApi):
+    model = Events
+    serializer_class = EventsSerializer
+
+
+class PositionsAndTitlesView(BaseViewAllApi):
+    model = Position_Titles
+    serializer_class = PositionsTitlesSerializer
+
+
+class BaseDetailView(APIView):
+    model = None
+    serializer_class = None
+
+    # get_object is a helper function for all the methods listed after
+    def get_object(self, id):
+        try:
+            return self.model.objects.get(id=id)
+        except self.model.DoesNotExist:
+            return None
+
+    def get(self, request, id):
+        instance = self.get_object(id)
+        if instance is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = self.serializer_class(instance, context={"request": request})
         return Response(serializer.data)
-    elif request.method == "POST":
-        serializer = EventsSerializer(data=request.data)
+
+    def put(self, request, id):
+        instance = self.get_object(id)
+        if instance is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = self.serializer_class(
+            instance, data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id):
+        instance = self.get_object(id)
+        if instance is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ChapterDetailView(BaseDetailView):
+    model = Chapter
+    serializer_class = ChapterSerializer
+
+
+class JobOppsAndReferralsDetailView(BaseDetailView):
+    model = Job_Opps_And_Referrals
+    serializer_class = JobOppsAndReferralsSerializer
+
+
+class SisterDetailView(BaseDetailView):
+    model = Sister
+    serializer_class = SistersSerializer
+
+
+class MemberExperiencesDetailView(BaseDetailView):
+    model = Member_Experiences
+    serializer_class = MemberExperiencesSerializer
+
+
+class EventsDetailView(BaseDetailView):
+    model = Events
+    serializer_class = EventsSerializer
+
+
+class PositionsAndTitlesDetailView(BaseDetailView):
+    model = Position_Titles
+    serializer_class = PositionsTitlesSerializer
