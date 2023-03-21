@@ -143,8 +143,6 @@ class Sister(models.Model):
     current_state_txt = models.CharField(max_length=15, null=True)
     current_country_txt = models.CharField(max_length=15, null=True)
     email_address_txt = models.EmailField(max_length=30, null=True)
-    # user                  = models.OneToOneField(
-    #                           settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING)
     coach_fg = models.BooleanField(default=False)
     current_position_txt = models.CharField(max_length=30, blank=True, null=True)
     current_company_txt = models.CharField(max_length=20, blank=True, null=True)
