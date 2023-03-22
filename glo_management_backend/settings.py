@@ -107,19 +107,19 @@ WSGI_APPLICATION = "glo_management_backend.wsgi.application"
 DATABASES = {
     "default": {
         # local setup
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("kplsisternicknames"),
-        "USER": os.environ.get("sylvialchen"),
-        "PASSWORD": os.environ.get("password"),
-        "HOST": "localhost",
-        "PORT": 5432,
+        # "ENGINE": "django.db.backends.postgresql",
+        # "NAME": os.environ.get("kplsisternicknames"),
+        # "USER": os.environ.get("sylvialchen"),
+        # "PASSWORD": os.environ.get("password"),
+        # "HOST": "localhost",
+        # "PORT": 5432,
         # deployed setup
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': env('DATABASE_NAME'),
-        # 'USER': env('DATABASE_USER'),
-        # 'PASSWORD': env('DATABASE_PASSWORD'),
-        # 'HOST': env('DATABASE_HOST'),
-        # 'PORT': 5432,
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': 5432,
     }
 }
 
