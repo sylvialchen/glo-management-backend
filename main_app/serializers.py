@@ -22,7 +22,6 @@ class ChapterStatsSerializer(serializers.ModelSerializer):
             "total_crossed_nb",
         )
 
-
 class ChapterSerializer(serializers.ModelSerializer):
     chapter_status_txt = serializers.CharField(source="get_chapter_status_txt_display")
     chapter_stats = serializers.SerializerMethodField()

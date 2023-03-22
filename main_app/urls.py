@@ -13,17 +13,14 @@ from .views import (
     PositionsAndTitlesView,
     PositionsAndTitlesDetailView,
     ExtendedUserMe,
-    # coach_list,
     CoachListView,
 )
 
 urlpatterns = [
-    # Following paths accept:
     # "GET" call to find user-specific data:
     path("user/me/", ExtendedUserMe.as_view(), name="extended-user-me"),
-    # Following paths accept:
     # "GET" API calls to find list of ALL
-    path("api/coaches/", CoachListView.as_view),
+    path("api/coaches/", CoachListView.as_view()),
     # Following paths accept:
     # "GET" API calls to find list of ALL
     # "POST" calls to add to database/list
