@@ -7,6 +7,7 @@ from .models import (
     Position_Titles,
     Chapter_Stats,
     Events,
+    Announcements
 )
 from django.contrib.auth import get_user_model
 
@@ -167,4 +168,19 @@ class EventsSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "host_chapter",
+        )
+class AnnouncementsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Announcements
+        fields = (
+            "id",
+            "national_announcement_fg",
+            "chapter_announcement_nb",
+            "title_txt",
+            "description_txt",
+            "link_txt",
+            "start_posting_date",
+            "end_posting_date",
+            "request_date",
+            "approved_fg",
         )
