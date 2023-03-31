@@ -7,6 +7,7 @@ from .models import (
     Position_Titles,
     Chapter_Stats,
     Events,
+    Announcements,
 )
 from django.contrib.auth import get_user_model
 
@@ -21,6 +22,7 @@ class ChapterStatsSerializer(serializers.ModelSerializer):
             "deceased_nb",
             "total_crossed_nb",
         )
+
 
 class ChapterSerializer(serializers.ModelSerializer):
     chapter_status_txt = serializers.CharField(source="get_chapter_status_txt_display")
@@ -167,4 +169,21 @@ class EventsSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "host_chapter",
+        )
+
+
+class AnnouncementsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Announcements
+        fields = (
+            "id",
+            "national_announcement_fg",
+            "chapter_announcement_nb",
+            "title_txt",
+            "description_txt",
+            "link_txt",
+            "start_posting_date",
+            "end_posting_date",
+            "request_date",
+            "approved_fg",
         )

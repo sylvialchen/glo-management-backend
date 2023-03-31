@@ -1,7 +1,9 @@
 from django.http import HttpResponse, HttpRequest
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.decorators import (
@@ -22,6 +24,7 @@ from .models import (
     Member_Experiences,
     Events,
     Position_Titles,
+    Announcements,
 )
 from .serializers import (
     ChapterSerializer,
@@ -32,6 +35,7 @@ from .serializers import (
     EventsSerializer,
     ExtendedUserSerializer,
     PositionsTitlesSerializer,
+    AnnouncementsSerializer,
 )
 
 
@@ -45,6 +49,28 @@ class CoachListView(APIView):
     def get(self, request):
         data = Sister.objects.filter(coach_fg=True)
         serializer = SistersSerializer(data, context={"request": request}, many=True)
+        return Response(serializer.data)
+
+
+class MemberAnnouncementView(APIView):
+    def get(self, request, *args, **kwargs):
+        current_time = timezone.now()
+        test = kwargs.get("type")
+        print(type(test))
+        if test == "current":
+            data = Announcements.objects.filter(
+                approved_fg=True,
+                start_posting_date__lte=current_time,
+                end_posting_date__gte=current_time,
+            ).exclude(start_posting_date__isnull=True, end_posting_date__isnull=True)
+        else:
+            data = Announcements.objects.filter(
+                approved_fg=True, end_posting_date__lte=current_time
+            )
+
+        serializer = AnnouncementsSerializer(
+            data, context={"request": request}, many=True
+        )
         return Response(serializer.data)
 
 
@@ -95,6 +121,11 @@ class EventsView(BaseViewAllApi):
 class PositionsAndTitlesView(BaseViewAllApi):
     model = Position_Titles
     serializer_class = PositionsTitlesSerializer
+
+
+class AnnouncementsView(BaseViewAllApi):
+    model = Announcements
+    serializer_class = AnnouncementsSerializer
 
 
 class BaseDetailView(APIView):
@@ -163,3 +194,8 @@ class EventsDetailView(BaseDetailView):
 class PositionsAndTitlesDetailView(BaseDetailView):
     model = Position_Titles
     serializer_class = PositionsTitlesSerializer
+
+
+class AnnouncementsDetailView(BaseDetailView):
+    model = Announcements
+    serializer_class = AnnouncementsSerializer
