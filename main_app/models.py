@@ -114,13 +114,19 @@ class Sister(models.Model):
     last_name_txt = models.CharField(max_length=25)
     nickname_txt = models.CharField(max_length=20)
     nickname_meaning_txt = models.TextField(max_length=250)
+    # DB_INDEX creates a B-Tree to quickly locate rows that match query conditions. 
+    # The B-Tree will automatically adjust itself each time data in these fields are modified/added/deleted.
     chapter_nb = models.ForeignKey(
-        Chapter, on_delete=models.CASCADE, related_name="active_chapter"
+        Chapter,
+        on_delete=models.CASCADE,
+        related_name="active_chapter",
+        db_index=True,
     )
     crossing_chapter_nb = models.ForeignKey(
         Chapter,
         on_delete=models.CASCADE,
         related_name="crossing_chapter",
+        db_index=True,
         blank=True,
         null=True,
     )
@@ -291,9 +297,12 @@ class Events(models.Model):
     def __str__(self):
         return f"National Event: {self.national_event}, Host: {self.host_chapter}, Name: {self.name}, Date: {self.date}, Location: {self.location}, URL: {self.url}, Description: {self.description}, Category: {self.category}"
 
+
 class Announcements(models.Model):
     national_announcement_fg = models.BooleanField(default=True)
-    chapter_announcement_nb = models.ForeignKey(Chapter, on_delete=models.SET_NULL, null=True, blank=True)
+    chapter_announcement_nb = models.ForeignKey(
+        Chapter, on_delete=models.SET_NULL, null=True, blank=True
+    )
     # SEOs and SEO websites recommend a title tag length of approximately 50 to 70 characters because that’s what Google shows in their SERPs
     title_txt = models.CharField(max_length=60)
     # Twitter max character limit

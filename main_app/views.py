@@ -55,24 +55,22 @@ class CoachListView(APIView):
 class MemberAnnouncementView(APIView):
     def get(self, request, *args, **kwargs):
         current_time = timezone.now()
-        test = kwargs.get('type')
+        test = kwargs.get("type")
         print(type(test))
-        if test == 'current':
+        if test == "current":
             data = Announcements.objects.filter(
-                approved_fg=True, 
+                approved_fg=True,
                 start_posting_date__lte=current_time,
-                end_posting_date__gte=current_time
-            ).exclude(
-                start_posting_date__isnull=True,
-                end_posting_date__isnull=True
-            )
+                end_posting_date__gte=current_time,
+            ).exclude(start_posting_date__isnull=True, end_posting_date__isnull=True)
         else:
             data = Announcements.objects.filter(
-                approved_fg=True, 
-                end_posting_date__lte=current_time
+                approved_fg=True, end_posting_date__lte=current_time
             )
 
-        serializer = AnnouncementsSerializer(data, context={"request": request}, many=True)
+        serializer = AnnouncementsSerializer(
+            data, context={"request": request}, many=True
+        )
         return Response(serializer.data)
 
 

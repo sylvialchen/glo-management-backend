@@ -16,14 +16,18 @@ from .views import (
     CoachListView,
     AnnouncementsView,
     AnnouncementsDetailView,
-    MemberAnnouncementView
+    MemberAnnouncementView,
 )
 
 urlpatterns = [
     # "GET" call to find user-specific data:
     path("user/me/", ExtendedUserMe.as_view(), name="extended-user-me"),
     # "GET" call to either "current" or "past" find time-sorted data:
-    path("api/announcements/<str:type>/", MemberAnnouncementView.as_view(), name="current_member_announcements"),
+    path(
+        "api/announcements/<str:type>/",
+        MemberAnnouncementView.as_view(),
+        name="current_member_announcements",
+    ),
     # "GET" API calls to find list of ALL
     path("api/coaches/", CoachListView.as_view()),
     # Following paths accept:
@@ -70,5 +74,9 @@ urlpatterns = [
         name="positions-and-titles-detail",
     ),
     path("api/events/<int:id>", EventsDetailView.as_view(), name="events-detail"),
-    path("api/announcements/<int:id>", AnnouncementsDetailView.as_view(), name="announcements-detail")
+    path(
+        "api/announcements/<int:id>",
+        AnnouncementsDetailView.as_view(),
+        name="announcements-detail",
+    ),
 ]
