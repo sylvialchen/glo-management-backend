@@ -106,9 +106,9 @@ class ChapterSerializer(serializers.ModelSerializer):
         memorial_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="ME"))
         total_crossed_nb = active_nb + inactive_nb + alumni_nb + memorial_nb
         if class_counts:
-            smallest_class_crossed_nb = min(class_counts, key=class_counts.get)
-            largest_class_crossed_nb = max(class_counts, key=class_counts.get)
-            average_class_crossed_fl = sum(class_counts.values()) / len(class_counts)
+            smallest_class_crossed_nb = min(counts)
+            largest_class_crossed_nb = max(counts)
+            average_class_crossed_fl = sum(counts) / len(counts)
         else:
             smallest_class_crossed_nb = None
             largest_class_crossed_nb = None
