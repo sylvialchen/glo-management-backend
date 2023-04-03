@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Count, Min, Max, Avg
 from .models import (
     Chapter,
     Job_Opps_And_Referrals,
@@ -19,8 +20,11 @@ class ChapterStatsSerializer(serializers.ModelSerializer):
             "active_nb",
             "inactive_nb",
             "alumni_nb",
-            "deceased_nb",
+            "memorial_nb",
             "total_crossed_nb",
+            "smallest_class_crossed_nb",
+            "largest_class_crossed_nb",
+            "average_class_crossed_fl",
         )
 
 
@@ -93,18 +97,27 @@ class ChapterSerializer(serializers.ModelSerializer):
         )
 
     def get_chapter_stats(self, obj):
+        member_counts = Member.objects.filter(chapter_nb_id=obj.id).values('crossing_class_txt').annotate(count=Count('id'))
+        class_counts = {mc['crossing_class_txt']: mc['count'] for mc in member_counts}
+        counts = list(class_counts.values())
         active_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="AC"))
-        inactive_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="IA"))
+        inactive_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt__in=["IM", "IN", "PI"]))
         alumni_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="AL"))
-        deceased_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="DE"))
-        total_crossed_nb = active_nb + inactive_nb + alumni_nb + deceased_nb
+        memorial_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="ME"))
+        total_crossed_nb = active_nb + inactive_nb + alumni_nb + memorial_nb
+        smallest_class_crossed_nb = min(counts)
+        largest_class_crossed_nb = max(counts)
+        average_class_crossed_fl = sum(counts) / len(counts)
 
         chapter_stats = Chapter_Stats(
             active_nb=active_nb,
             inactive_nb=inactive_nb,
             alumni_nb=alumni_nb,
-            deceased_nb=deceased_nb,
+            memorial_nb=memorial_nb,
             total_crossed_nb=total_crossed_nb,
+            smallest_class_crossed_nb=smallest_class_crossed_nb,
+            largest_class_crossed_nb=largest_class_crossed_nb,
+            average_class_crossed_fl=average_class_crossed_fl
         )
 
         serializer = ChapterStatsSerializer(chapter_stats)

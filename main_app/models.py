@@ -7,9 +7,14 @@ from django.conf import settings
 
 STATUS = (
     ("AC", "Active"),
-    ("IA", "Inactive"),
+    ("IM", "Inactive - Matriculated"),
+    ("IN", "Inactive - Non-Matriculated"),
+    ("TA", "Transfer - Active"),
+    ("TI", "Transfer - Inactive"),
+    ("TU", "Transfer - Unknown Status"),
     ("AL", "Alumnae"),
-    ("DE", "Deceased"),
+    ("ME", "Memorial"),
+    ("PI", "Permanent Inactivity"),
 )
 
 CHAPTER_STATUS = (
@@ -25,6 +30,7 @@ NICKNAME_STATUS = (
 )
 
 GREEK_CLASS = (
+    ("00", "Charter"),
     ("01", "Alpha"),
     ("02", "Beta"),
     ("03", "Gamma"),
@@ -72,6 +78,7 @@ JOB_FAMILY = (
     ("OP", "Operations"),
     ("ED", "Education"),
     ("RE", "Recruiting"),
+    ("PR", "Public Relations")
 )
 
 EVENT = (
@@ -163,7 +170,7 @@ class Member(models.Model):
     summary_txt = models.TextField(max_length=250, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.first_name_txt} {self.last_name_txt} - {self.nickname_txt}"
+        return f"{self.first_name_txt} {self.last_name_txt}, {self.nickname_txt}"
 
     # def get_absolute_url(self):
     #     return reverse('sister_detail', kwargs={'sister_id': self.id})
@@ -278,11 +285,14 @@ class Chapter_Stats(models.Model):
     active_nb = models.PositiveIntegerField()
     inactive_nb = models.PositiveIntegerField()
     alumni_nb = models.PositiveIntegerField()
-    deceased_nb = models.PositiveIntegerField()
+    memorial_nb = models.PositiveIntegerField()
     total_crossed_nb = models.PositiveIntegerField()
+    smallest_class_crossed_nb = models.PositiveIntegerField()
+    largest_class_crossed_nb = models.PositiveIntegerField()
+    average_class_crossed_fl = models.FloatField()
 
-    def __str__(self):
-        return f"Active: {self.active_nb}, Inactive: {self.inactive_nb}, Alumni: {self.alumni_nb}, Deceased: {self.deceased_nb}, Total: {self.total_crossed_nb}"
+    # def __str__(self):
+    #     return f"Active: {self.active_nb}, Inactive: {self.inactive_nb}, Alumni: {self.alumni_nb}, Deceased: {self.memorial_nb}, Total: {self.total_crossed_nb}"
 
 
 class Events(models.Model):
