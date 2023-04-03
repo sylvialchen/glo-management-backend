@@ -100,6 +100,9 @@ class Chapter(models.Model):
         if self.associate_chapter_fg == True:
             return f"Associate Chapter @ {self.chapter_school_txt}"
         return f"{self.greek_letter_assigned_txt} @ {self.chapter_school_txt}"
+    
+    class Meta:
+        ordering = ['-associate_chapter_fg', 'original_founding_date']
 
     # def get_absolute_url(self):
     #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
@@ -109,7 +112,7 @@ class Industry(models.Model):
     industry_txt = models.CharField(max_length=50)
 
 
-class Sister(models.Model):
+class Member(models.Model):
     first_name_txt = models.CharField(max_length=20)
     last_name_txt = models.CharField(max_length=25)
     nickname_txt = models.CharField(max_length=20)
@@ -142,11 +145,12 @@ class Sister(models.Model):
         "PNM initiation date", auto_created=False, default=None
     )
     line_nb = models.IntegerField(null=True)
-    big_sister_nb = models.ForeignKey("self", on_delete=models.CASCADE)
+    big_nb = models.ForeignKey("self", on_delete=models.CASCADE)
     tree_txt = models.CharField(max_length=20, blank=True, null=True)
     status_txt = models.CharField(max_length=2, choices=STATUS, default=STATUS[0][0])
-    current_city_txt = models.CharField(max_length=15, null=True)
-    current_state_txt = models.CharField(max_length=15, null=True)
+    # current_address_txt = models.CharField(max_length=35, null=True)
+    current_city_txt = models.CharField(max_length=30, null=True)
+    current_state_txt = models.CharField(max_length=30, null=True)
     current_country_txt = models.CharField(max_length=15, null=True)
     email_address_txt = models.EmailField(max_length=30, null=True)
     coach_fg = models.BooleanField(default=False)
@@ -168,7 +172,7 @@ class Sister(models.Model):
 class MyUser(EmailAbstractUser):
     # Custom fields
     member_nb = models.OneToOneField(
-        Sister, blank=True, null=True, on_delete=models.DO_NOTHING
+        Member, blank=True, null=True, on_delete=models.DO_NOTHING
     )
     # Required
     objects = EmailUserManager()
@@ -187,7 +191,7 @@ class Pnm(models.Model):
     # process_semester  = models.CharField(max_length=6)
     # process_year      = models.PositiveSmallIntegerField()
     # potential_line_nb = models.PositiveSmallIntegerField()
-    big_sister_nb = models.ForeignKey(Sister, on_delete=models.SET_NULL, null=True)
+    big_nb = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f"PNM {self.first_name_txt}"
@@ -200,7 +204,7 @@ class Nickname_Request(models.Model):
     name_txt = models.CharField("nickname request", max_length=20)
     nickname_meaning_txt = models.TextField(max_length=250)
     pnm_nb = models.ForeignKey(Pnm, on_delete=models.CASCADE, null=True)
-    requestor_nb = models.ForeignKey(Sister, on_delete=models.SET_NULL, null=True)
+    requestor_nb = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
     req_date = models.DateTimeField(
         "date requested", auto_created=True, default=timezone.now
     )
@@ -236,7 +240,7 @@ class Job_Opps_And_Referrals(models.Model):
     )
     industry_nb = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
     description_txt = models.TextField(max_length=250)
-    poster_nb = models.ForeignKey(Sister, on_delete=models.CASCADE, null=True)
+    poster_nb = models.ForeignKey(Member, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"{self.job_title_txt} @ {self.company_name_txt}"
@@ -256,8 +260,8 @@ class Position_Titles(models.Model):
 
 
 class Member_Experiences(models.Model):
-    sister_nb = models.ForeignKey(
-        Sister, related_name="experiences", on_delete=models.CASCADE, null=True
+    member_nb = models.ForeignKey(
+        Member, related_name="experiences", on_delete=models.CASCADE, null=True
     )
     position_nb = models.ForeignKey(
         Position_Titles, on_delete=models.CASCADE, null=True

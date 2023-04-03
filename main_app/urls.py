@@ -4,8 +4,8 @@ from .views import (
     ChapterDetailView,
     JobOppsAndReferralsView,
     JobOppsAndReferralsDetailView,
-    SisterView,
-    SisterDetailView,
+    MemberView,
+    MemberDetailView,
     MemberExperiencesView,
     MemberExperiencesDetailView,
     EventsView,
@@ -17,16 +17,24 @@ from .views import (
     AnnouncementsView,
     AnnouncementsDetailView,
     MemberAnnouncementView,
+    RecentJobsAPIView,
+    MyUserList,
 )
 
 urlpatterns = [
     # "GET" call to find user-specific data:
     path("user/me/", ExtendedUserMe.as_view(), name="extended-user-me"),
+    path("user/all/", MyUserList.as_view(), name="all-users-list"),
     # "GET" call to either "current" or "past" find time-sorted data:
     path(
         "api/announcements/<str:type>/",
         MemberAnnouncementView.as_view(),
         name="current_member_announcements",
+    ),
+        path(
+        "api/jobs/recent/",
+        RecentJobsAPIView.as_view(),
+        name="job-opps-and-referrals-list",
     ),
     # "GET" API calls to find list of ALL
     path("api/coaches/", CoachListView.as_view()),
@@ -39,7 +47,7 @@ urlpatterns = [
         JobOppsAndReferralsView.as_view(),
         name="job-opps-and-referrals-list",
     ),
-    path("api/members/", SisterView.as_view(), name="sister-list"),
+    path("api/members/", MemberView.as_view(), name="member-list"),
     path(
         "api/experiences/",
         MemberExperiencesView.as_view(),
@@ -62,7 +70,7 @@ urlpatterns = [
         JobOppsAndReferralsDetailView.as_view(),
         name="job-opps-and-referrals-detail",
     ),
-    path("api/members/<int:id>", SisterDetailView.as_view(), name="sister-detail"),
+    path("api/members/<int:id>", MemberDetailView.as_view(), name="member-detail"),
     path(
         "api/experiences/<int:id>",
         MemberExperiencesDetailView.as_view(),
