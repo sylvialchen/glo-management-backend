@@ -18,13 +18,13 @@ from .views import (
     AnnouncementsDetailView,
     MemberAnnouncementView,
     RecentJobsAPIView,
-    MyUserList,
+    UnassignedMemberList,
 )
 
 urlpatterns = [
     # "GET" call to find user-specific data:
     path("user/me/", ExtendedUserMe.as_view(), name="extended-user-me"),
-    path("user/all/", MyUserList.as_view(), name="all-users-list"),
+    path("users/unassigned/", UnassignedMemberList.as_view()),
     # "GET" call to either "current" or "past" find time-sorted data:
     path(
         "api/announcements/<str:type>/",

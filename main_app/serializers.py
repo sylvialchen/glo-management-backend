@@ -34,7 +34,7 @@ class MemberExperiencesSerializer(serializers.ModelSerializer):
         fields = ("id", "member_nb", "position_nb", "start_date", "end_date", "chapter_nb")
 
 
-class MembersSerializer(serializers.ModelSerializer):
+class MembersSerializerFull(serializers.ModelSerializer):
     # crossing_class_txt = serializers.CharField(
     #     source='get_crossing_class_txt_display')
     # status_txt = serializers.CharField(source='get_status_txt_display')
@@ -74,12 +74,30 @@ class MembersSerializer(serializers.ModelSerializer):
             "experiences",
         ]
 
+class MembersSerializerAbbr(serializers.ModelSerializer):
+    class Meta:
+            model = Member
+            fields = [
+                "id",
+                "first_name_txt",
+                "last_name_txt",
+                "nickname_txt",
+                "chapter_nb",
+                "crossing_chapter_nb",
+                "crossing_class_txt",
+                "crossing_date",
+                "line_nb",
+                "big_nb",
+                "tree_txt",
+                "status_txt",
+                "email_address_txt",
+            ]
 
 class ChapterSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     chapter_status_txt = serializers.CharField(source="get_chapter_status_txt_display")
     chapter_stats = serializers.SerializerMethodField()
-    members = MembersSerializer(many=True, read_only=True)
+    members = MembersSerializerFull(many=True, read_only=True)
 
     class Meta:
         model = Chapter
@@ -105,9 +123,14 @@ class ChapterSerializer(serializers.ModelSerializer):
         alumni_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="AL"))
         memorial_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="ME"))
         total_crossed_nb = active_nb + inactive_nb + alumni_nb + memorial_nb
-        smallest_class_crossed_nb = min(counts)
-        largest_class_crossed_nb = max(counts)
-        average_class_crossed_fl = sum(counts) / len(counts)
+        if class_counts:
+            smallest_class_crossed_nb = min(counts)
+            largest_class_crossed_nb = max(counts)
+            average_class_crossed_fl = sum(counts) / len(counts)
+        else:
+            smallest_class_crossed_nb = None
+            largest_class_crossed_nb = None
+            average_class_crossed_fl = None
 
         chapter_stats = Chapter_Stats(
             active_nb=active_nb,
@@ -139,13 +162,13 @@ class ExtendedUserSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = ("email", "first_name", "last_name", "member_nb")
 
-    member_nb = MembersSerializer(many=False, read_only=True)
+    member_nb = MembersSerializerFull(many=False, read_only=True)
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
     # level_of_opening_txt = serializers.CharField(
     #     source='get_level_of_opening_txt_display')
-    poster_nb = MembersSerializer(many=False, read_only=True)
+    poster_nb = MembersSerializerFull(many=False, read_only=True)
 
     class Meta:
         model = Job_Opps_And_Referrals
