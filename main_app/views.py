@@ -32,13 +32,14 @@ from .models import (
 from .serializers import (
     ChapterSerializer,
     JobOppsAndReferralsSerializer,
-    MembersSerializer,
+    MembersSerializerFull,
     MemberExperiencesSerializer,
     ChapterStatsSerializer,
     EventsSerializer,
     ExtendedUserSerializer,
     PositionsTitlesSerializer,
     AnnouncementsSerializer,
+    MembersSerializerAbbr,
 )
 
 
@@ -50,19 +51,34 @@ class ExtendedUserMe(APIView):
         return Response(serializer.data)
 
 
-# Currently displays all users, but we will adjust this to be all users 
-# that don't have an associated member model.
-class MyUserList(APIView):
+# Displays all users that have registered 
+# but don't have an associated Member Profile
+class UnassignedMemberList(APIView):
+    serializer_class = MembersSerializerAbbr
+    allow_methods = ['GET']
+
+    def get_queryset(self):
+        queryset = Member.objects.filter(myuser__isnull=True)
+        return queryset
+    
     def get(self, request):
-        users = MyUser.objects.all()
-        serializer = ExtendedUserSerializer(users, many=True)
-        return Response(serializer.data)
-    
-    
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        
+        # Get unassigned users
+        unassigned_users = MyUser.objects.filter(member_nb=None)
+        user_serializer = ExtendedUserSerializer(unassigned_users, many=True)
+        
+        return Response({
+            'unassigned_users': user_serializer.data,
+            'unassigned_members': serializer.data,
+        })
+
+
 class CoachListView(APIView):
     def get(self, request):
         data = Member.objects.filter(coach_fg=True)
-        serializer = MembersSerializer(data, context={"request": request}, many=True)
+        serializer = MembersSerializerFull(data, context={"request": request}, many=True)
         return Response(serializer.data)
 
 
@@ -141,7 +157,7 @@ class JobOppsAndReferralsView(BaseViewAllApi):
 
 class MemberView(BaseViewAllApi):
     model = Member
-    serializer_class = MembersSerializer
+    serializer_class = MembersSerializerFull
 
 
 class MemberExperiencesView(BaseViewAllApi):
@@ -213,7 +229,7 @@ class ChapterDetailView(BaseDetailView):
         members = Member.objects.filter(
             Q(chapter_nb=chapter) | Q(crossing_chapter_nb=chapter)
         )
-        member_serializer = MembersSerializer(
+        member_serializer = MembersSerializerFull(
             members, many=True, context={"request": request}
         )
         data = serializer.data
@@ -229,7 +245,7 @@ class JobOppsAndReferralsDetailView(BaseDetailView):
 
 class MemberDetailView(BaseDetailView):
     model = Member
-    serializer_class = MembersSerializer
+    serializer_class = MembersSerializerFull
 
 
 class MemberExperiencesDetailView(BaseDetailView):

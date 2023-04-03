@@ -29,6 +29,7 @@ NICKNAME_STATUS = (
     ("DE", "Denied"),
 )
 
+# Note that for this use case, the greek alphabet is missing Kappa.
 GREEK_CLASS = (
     ("00", "Charter"),
     ("01", "Alpha"),
@@ -55,6 +56,13 @@ GREEK_CLASS = (
     (22, "Psi"),
     (23, "Omega"),
 )
+
+for i in range(24, 47):
+    GREEK_CLASS += ((i,f"Alpha {GREEK_CLASS[i-23][1]}"),)
+
+for i in range(47, 70):
+    GREEK_CLASS += ((i,f"Beta {GREEK_CLASS[i-46][1]}"),)
+
 
 JOB_LEVEL = (
     ("00", "Internship"),

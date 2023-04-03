@@ -34,7 +34,7 @@ class MemberExperiencesSerializer(serializers.ModelSerializer):
         fields = ("id", "member_nb", "position_nb", "start_date", "end_date", "chapter_nb")
 
 
-class MembersSerializer(serializers.ModelSerializer):
+class MembersSerializerFull(serializers.ModelSerializer):
     # crossing_class_txt = serializers.CharField(
     #     source='get_crossing_class_txt_display')
     # status_txt = serializers.CharField(source='get_status_txt_display')
@@ -74,12 +74,30 @@ class MembersSerializer(serializers.ModelSerializer):
             "experiences",
         ]
 
+class MembersSerializerAbbr(serializers.ModelSerializer):
+    class Meta:
+            model = Member
+            fields = [
+                "id",
+                "first_name_txt",
+                "last_name_txt",
+                "nickname_txt",
+                "chapter_nb",
+                "crossing_chapter_nb",
+                "crossing_class_txt",
+                "crossing_date",
+                "line_nb",
+                "big_nb",
+                "tree_txt",
+                "status_txt",
+                "email_address_txt",
+            ]
 
 class ChapterSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     chapter_status_txt = serializers.CharField(source="get_chapter_status_txt_display")
     chapter_stats = serializers.SerializerMethodField()
-    members = MembersSerializer(many=True, read_only=True)
+    members = MembersSerializerFull(many=True, read_only=True)
 
     class Meta:
         model = Chapter
@@ -144,13 +162,13 @@ class ExtendedUserSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = ("email", "first_name", "last_name", "member_nb")
 
-    member_nb = MembersSerializer(many=False, read_only=True)
+    member_nb = MembersSerializerFull(many=False, read_only=True)
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
     # level_of_opening_txt = serializers.CharField(
     #     source='get_level_of_opening_txt_display')
-    poster_nb = MembersSerializer(many=False, read_only=True)
+    poster_nb = MembersSerializerFull(many=False, read_only=True)
 
     class Meta:
         model = Job_Opps_And_Referrals
