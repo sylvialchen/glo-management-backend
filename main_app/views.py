@@ -15,6 +15,7 @@ from rest_framework.decorators import (
 )
 from rest_framework import status
 from rest_framework.views import APIView
+from .model_choices import *
 from .models import (
     Chapter,
     Industry,
@@ -27,7 +28,9 @@ from .models import (
     Events,
     Position_Titles,
     Announcements,
-    MyUser
+    MyUser,
+    Ethnicities,
+    Dialects
 )
 from .serializers import (
     ChapterSerializer,
@@ -40,9 +43,9 @@ from .serializers import (
     PositionsTitlesSerializer,
     AnnouncementsSerializer,
     MembersSerializerAbbr,
+    EthnicitiesSerializer,
+    DialectsSerializer
 )
-
-
 
 
 class ExtendedUserMe(APIView):
@@ -51,34 +54,37 @@ class ExtendedUserMe(APIView):
         return Response(serializer.data)
 
 
-# Displays all users that have registered 
-# but don't have an associated Member Profile
+# Displays all users that have registered and are not assigned to a Member Profile
 class UnassignedMemberList(APIView):
     serializer_class = MembersSerializerAbbr
-    allow_methods = ['GET']
+    allow_methods = ["GET"]
 
     def get_queryset(self):
         queryset = Member.objects.filter(myuser__isnull=True)
         return queryset
-    
+
     def get(self, request):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
-        
+
         # Get unassigned users
         unassigned_users = MyUser.objects.filter(member_nb=None)
         user_serializer = ExtendedUserSerializer(unassigned_users, many=True)
-        
-        return Response({
-            'unassigned_users': user_serializer.data,
-            'unassigned_members': serializer.data,
-        })
+
+        return Response(
+            {
+                "unassigned_users": user_serializer.data,
+                "unassigned_members": serializer.data,
+            }
+        )
 
 
 class CoachListView(APIView):
     def get(self, request):
         data = Member.objects.filter(coach_fg=True)
-        serializer = MembersSerializerFull(data, context={"request": request}, many=True)
+        serializer = MembersSerializerFull(
+            data, context={"request": request}, many=True
+        )
         return Response(serializer.data)
 
 
@@ -106,15 +112,16 @@ class MemberAnnouncementView(APIView):
 
 class RecentJobsAPIView(APIView):
     serializer_class = JobOppsAndReferralsSerializer
-    
+
     def get(self, request):
         cutoff_date = timezone.now() - timezone.timedelta(days=30)
         recent_jobs = Job_Opps_And_Referrals.objects.filter(pub_date__gte=cutoff_date)
-        
+
         serializer = self.serializer_class(recent_jobs, many=True)
         return Response(serializer.data)
-    
 
+
+# BaseViewAll is reusable code to get all or create 1 or more new instance(s) for aspecified model
 class BaseViewAllApi(APIView):
     model = None
     serializer_class = None
@@ -143,6 +150,16 @@ class BaseViewAllApi(APIView):
                 serializer.save()
                 return Response(status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EthnicitiesView(BaseViewAllApi):
+    model = Ethnicities
+    serializer_class = EthnicitiesSerializer
+
+
+class DialectsView(BaseViewAllApi):
+    model = Dialects
+    serializer_class = DialectsSerializer
 
 
 class ChapterView(BaseViewAllApi):
@@ -179,7 +196,7 @@ class AnnouncementsView(BaseViewAllApi):
     model = Announcements
     serializer_class = AnnouncementsSerializer
 
-
+# BaseDetail is reusable code to get, update or delete the detail of single instance
 class BaseDetailView(APIView):
     model = None
     serializer_class = None
