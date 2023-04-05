@@ -3,98 +3,14 @@ from django.urls import reverse
 from django.utils import timezone
 from authemail.models import EmailUserManager, EmailAbstractUser
 from django.conf import settings
-
-
-STATUS = (
-    ("AC", "Active"),
-    ("IM", "Inactive - Matriculated"),
-    ("IN", "Inactive - Non-Matriculated"),
-    ("TA", "Transfer - Active"),
-    ("TI", "Transfer - Inactive"),
-    ("TU", "Transfer - Unknown Status"),
-    ("AL", "Alumnae"),
-    ("ME", "Memorial"),
-    ("PI", "Permanent Inactivity"),
-)
-
-CHAPTER_STATUS = (
-    ("AC", "Active"),
-    ("IN", "Inactive"),
-)
-
-NICKNAME_STATUS = (
-    ("RE", "Requested"),
-    ("AP", "Approved"),
-    ("QU", "Queued"),
-    ("DE", "Denied"),
-)
-
-# Note that for this use case, the greek alphabet is missing Kappa.
-GREEK_CLASS = (
-    ("00", "Charter"),
-    ("01", "Alpha"),
-    ("02", "Beta"),
-    ("03", "Gamma"),
-    ("04", "Delta"),
-    ("05", "Epsilon"),
-    ("06", "Zeta"),
-    ("07", "Eta"),
-    ("08", "Theta"),
-    ("09", "Iota"),
-    (10, "Lambda"),
-    (11, "Mu"),
-    (12, "Nu"),
-    (13, "Xi"),
-    (14, "Omicron"),
-    (15, "Pi"),
-    (16, "Rho"),
-    (17, "Sigma"),
-    (18, "Tau"),
-    (19, "Upsilon"),
-    (20, "Phi"),
-    (21, "Chi"),
-    (22, "Psi"),
-    (23, "Omega"),
-)
-
-for i in range(24, 47):
-    GREEK_CLASS += ((i,f"Alpha {GREEK_CLASS[i-23][1]}"),)
-
-for i in range(47, 70):
-    GREEK_CLASS += ((i,f"Beta {GREEK_CLASS[i-46][1]}"),)
-
-
-JOB_LEVEL = (
-    ("00", "Internship"),
-    ("01", "Entry"),
-    ("02", "Associate"),
-    ("03", "Analyst"),
-    ("04", "Specialist"),
-    ("05", "Manager"),
-    ("06", "Senior Manager"),
-    ("07", "Director"),
-    ("08", "Senior Director"),
-    ("09", "Executive"),
-)
-
-JOB_FAMILY = (
-    ("FI", "Finance"),
-    ("CS", "Community Service"),
-    ("FU", "Fundraising"),
-    ("SH", "Sisterhood"),
-    ("IN", "Intake"),
-    ("OP", "Operations"),
-    ("ED", "Education"),
-    ("RE", "Recruiting"),
-    ("PR", "Public Relations")
-)
-
-EVENT = (
-    ("FU", "Fundraising"),
-    ("SE", "Service"),
-    ("PR", "Professional"),
-    ("SI", "Sisterhood"),
-    ("ED", "Educational"),
+from main_app.model_choices import (
+    STATUS,
+    CHAPTER_STATUS,
+    NICKNAME_STATUS,
+    GREEK_CLASS,
+    JOB_LEVEL,
+    JOB_FAMILY,
+    EVENT,
 )
 
 
@@ -115,24 +31,43 @@ class Chapter(models.Model):
         if self.associate_chapter_fg == True:
             return f"Associate Chapter @ {self.chapter_school_txt}"
         return f"{self.greek_letter_assigned_txt} @ {self.chapter_school_txt}"
-    
-    class Meta:
-        ordering = ['-associate_chapter_fg', 'original_founding_date']
 
-    # def get_absolute_url(self):
-    #     return reverse('chapter_detail', kwargs={'chapter_id': self.id})
+    class Meta:
+        ordering = ["-associate_chapter_fg", "original_founding_date"]
 
 
 class Industry(models.Model):
     industry_txt = models.CharField(max_length=50)
 
 
+class Ethnicities(models.Model):
+    ethnicity_txt = models.CharField(max_length=50)
+
+    class Meta:
+        ordering = ["ethnicity_txt"]
+
+    def __str__(self):
+        return self.ethnicity_txt
+
+
+class Dialects(models.Model):
+    dialect_txt = models.CharField(max_length=50)
+
+    class Meta:
+        ordering = ["dialect_txt"]
+
+    def __str__(self):
+        return self.dialect_txt
+
+
 class Member(models.Model):
     first_name_txt = models.CharField(max_length=20)
     last_name_txt = models.CharField(max_length=25)
+    ethnicity_txt = models.ManyToManyField(Ethnicities)
+    dialects_txt = models.ManyToManyField(Dialects)
     nickname_txt = models.CharField(max_length=20)
     nickname_meaning_txt = models.TextField(max_length=250)
-    # DB_INDEX creates a B-Tree to quickly locate rows that match query conditions. 
+    # DB_INDEX creates a B-Tree to quickly locate rows that match query conditions.
     # The B-Tree will automatically adjust itself each time data in these fields are modified/added/deleted.
     chapter_nb = models.ForeignKey(
         Chapter,
@@ -160,7 +95,7 @@ class Member(models.Model):
         "PNM initiation date", auto_created=False, default=None
     )
     line_nb = models.IntegerField(null=True)
-    big_nb = models.ForeignKey("self", on_delete=models.CASCADE)
+    big_nb = models.ForeignKey("self", on_delete=models.PROTECT)
     tree_txt = models.CharField(max_length=20, blank=True, null=True)
     status_txt = models.CharField(max_length=2, choices=STATUS, default=STATUS[0][0])
     # current_address_txt = models.CharField(max_length=35, null=True)
@@ -240,6 +175,11 @@ class Nickname_Request(models.Model):
     #         ordering = ['-date']
 
 
+# class Nicknames(models.Model):
+#     nickname_txt = models.CharField("nickname request", max_length=20)
+#     nickname_meaning_txt = models.TextField(max_length=250)
+
+
 class Job_Opps_And_Referrals(models.Model):
     pub_date = models.DateTimeField(
         "date published", auto_created=True, default=timezone.now
@@ -288,6 +228,8 @@ class Member_Experiences(models.Model):
     def __str__(self):
         return f"{self.position_nb} from {self.start_date} to {self.end_date}"
 
+    class Meta:
+        ordering = ["-end_date"]
 
 class Chapter_Stats(models.Model):
     active_nb = models.PositiveIntegerField()

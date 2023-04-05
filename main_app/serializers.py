@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Count, Min, Max, Avg
+from .model_choices import *
 from .models import (
     Chapter,
     Job_Opps_And_Referrals,
@@ -9,6 +10,8 @@ from .models import (
     Chapter_Stats,
     Events,
     Announcements,
+    Ethnicities,
+    Dialects
 )
 from django.contrib.auth import get_user_model
 
@@ -28,10 +31,29 @@ class ChapterStatsSerializer(serializers.ModelSerializer):
         )
 
 
+class EthnicitiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ethnicities
+        fields = "__all__"
+
+
+class DialectsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dialects
+        fields = "__all__"
+
+
 class MemberExperiencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member_Experiences
-        fields = ("id", "member_nb", "position_nb", "start_date", "end_date", "chapter_nb")
+        fields = (
+            "id",
+            "member_nb",
+            "position_nb",
+            "start_date",
+            "end_date",
+            "chapter_nb",
+        )
 
 
 class MembersSerializerFull(serializers.ModelSerializer):
@@ -40,6 +62,8 @@ class MembersSerializerFull(serializers.ModelSerializer):
     # status_txt = serializers.CharField(source='get_status_txt_display')
     # chapter_nb = ChapterSerializer(many=False, read_only=True)
     experiences = MemberExperiencesSerializer(many=True, read_only=True)
+    ethnicity_txt = EthnicitiesSerializer(many=True, read_only=True)
+    dialects_txt = DialectsSerializer(many=True, read_only=True)
     # StringRelatedField calls the __str__ method on the corresponding model
     # i.e., Chapter_nb is a FK to Chapter
     # chapter_nb = serializers.StringRelatedField(many=False)
@@ -50,6 +74,8 @@ class MembersSerializerFull(serializers.ModelSerializer):
             "id",
             "first_name_txt",
             "last_name_txt",
+            "ethnicity_txt",
+            "dialects_txt",
             "nickname_txt",
             "nickname_meaning_txt",
             "chapter_nb",
@@ -74,28 +100,31 @@ class MembersSerializerFull(serializers.ModelSerializer):
             "experiences",
         ]
 
+
 class MembersSerializerAbbr(serializers.ModelSerializer):
     class Meta:
-            model = Member
-            fields = [
-                "id",
-                "first_name_txt",
-                "last_name_txt",
-                "nickname_txt",
-                "chapter_nb",
-                "crossing_chapter_nb",
-                "crossing_class_txt",
-                "crossing_date",
-                "line_nb",
-                "big_nb",
-                "tree_txt",
-                "status_txt",
-                "email_address_txt",
-            ]
+        model = Member
+        fields = [
+            "id",
+            "first_name_txt",
+            "last_name_txt",
+            "nickname_txt",
+            "chapter_nb",
+            "crossing_chapter_nb",
+            "crossing_class_txt",
+            "crossing_date",
+            "line_nb",
+            "big_nb",
+            "tree_txt",
+            "status_txt",
+            "email_address_txt",
+        ]
+
 
 class ChapterSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
-    chapter_status_txt = serializers.CharField(source="get_chapter_status_txt_display")
+    chapter_status_txt = serializers.CharField(
+        source="get_chapter_status_txt_display")
     chapter_stats = serializers.SerializerMethodField()
     members = MembersSerializerFull(many=True, read_only=True)
 
@@ -111,17 +140,29 @@ class ChapterSerializer(serializers.ModelSerializer):
             "recharter_date",
             "chapter_status_txt",
             "chapter_stats",
-            "members"
+            "members",
         )
 
     def get_chapter_stats(self, obj):
-        member_counts = Member.objects.filter(chapter_nb_id=obj.id).values('crossing_class_txt').annotate(count=Count('id'))
-        class_counts = {mc['crossing_class_txt']: mc['count'] for mc in member_counts}
+        member_counts = (
+            Member.objects.filter(chapter_nb_id=obj.id)
+            .values("crossing_class_txt")
+            .annotate(count=Count("id"))
+        )
+        class_counts = {mc["crossing_class_txt"]: mc["count"]
+                        for mc in member_counts}
         counts = list(class_counts.values())
-        active_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="AC"))
-        inactive_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt__in=["IM", "IN", "PI"]))
-        alumni_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="AL"))
-        memorial_nb = len(Member.objects.filter(chapter_nb_id=obj.id, status_txt="ME"))
+        active_nb = len(Member.objects.filter(
+            chapter_nb_id=obj.id, status_txt="AC"))
+        inactive_nb = len(
+            Member.objects.filter(
+                chapter_nb_id=obj.id, status_txt__in=["IM", "IN", "PI"]
+            )
+        )
+        alumni_nb = len(Member.objects.filter(
+            chapter_nb_id=obj.id, status_txt="AL"))
+        memorial_nb = len(Member.objects.filter(
+            chapter_nb_id=obj.id, status_txt="ME"))
         total_crossed_nb = active_nb + inactive_nb + alumni_nb + memorial_nb
         if class_counts:
             smallest_class_crossed_nb = min(counts)
@@ -140,7 +181,7 @@ class ChapterSerializer(serializers.ModelSerializer):
             total_crossed_nb=total_crossed_nb,
             smallest_class_crossed_nb=smallest_class_crossed_nb,
             largest_class_crossed_nb=largest_class_crossed_nb,
-            average_class_crossed_fl=average_class_crossed_fl
+            average_class_crossed_fl=average_class_crossed_fl,
         )
 
         serializer = ChapterStatsSerializer(chapter_stats)
@@ -153,7 +194,7 @@ class PositionsTitlesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Position_Titles
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ExtendedUserSerializer(serializers.ModelSerializer):
@@ -166,8 +207,8 @@ class ExtendedUserSerializer(serializers.ModelSerializer):
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
-    # level_of_opening_txt = serializers.CharField(
-    #     source='get_level_of_opening_txt_display')
+    level_of_opening_txt = serializers.CharField(
+        source='get_level_of_opening_txt_display')
     poster_nb = MembersSerializerFull(many=False, read_only=True)
 
     class Meta:
@@ -191,10 +232,12 @@ class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
 class EventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Events
-        fields = '__all__'
+        fields = "__all__"
 
 
 class AnnouncementsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcements
-        fields = '__all__'
+        fields = "__all__"
+
+

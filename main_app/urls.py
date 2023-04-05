@@ -19,6 +19,8 @@ from .views import (
     MemberAnnouncementView,
     RecentJobsAPIView,
     UnassignedMemberList,
+    EthnicitiesView,
+    DialectsView,
 )
 
 urlpatterns = [
@@ -31,7 +33,7 @@ urlpatterns = [
         MemberAnnouncementView.as_view(),
         name="current_member_announcements",
     ),
-        path(
+    path(
         "api/jobs/recent/",
         RecentJobsAPIView.as_view(),
         name="job-opps-and-referrals-list",
@@ -60,6 +62,8 @@ urlpatterns = [
     ),
     path("api/events/", EventsView.as_view(), name="events-list"),
     path("api/announcements/", AnnouncementsView.as_view(), name="announcements-list"),
+    path("api/ethnicities/", EthnicitiesView.as_view(), name="ethnicities-list"),
+    path("api/dialects/", DialectsView.as_view(), name="dialects-list"),
     # Following paths accept:
     # "GET" calls to get detail view
     # "PUT" calls to update specific ID
