@@ -79,6 +79,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "glo_management_backend.urls"
 
@@ -179,14 +180,14 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
+# Used to verify connection to AWS RDS
+# def verify_connection():
+#     try:
+#         cursor = connections["default"].cursor()
+#         cursor.execute("SELECT 1")
+#         return True
+#     except Exception:
+#         return False
+# print(verify_connection())
 
-def verify_connection():
-    try:
-        cursor = connections["default"].cursor()
-        cursor.execute("SELECT 1")
-        return True
-    except Exception:
-        return False
 
-
-print(verify_connection())
