@@ -231,6 +231,7 @@ class Member_Experiences(models.Model):
     class Meta:
         ordering = ["-end_date"]
 
+
 class Chapter_Stats(models.Model):
     active_nb = models.PositiveIntegerField()
     inactive_nb = models.PositiveIntegerField()

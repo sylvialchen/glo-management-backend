@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import path
 from .views import (
     ChapterView,
@@ -22,8 +23,13 @@ from .views import (
     EthnicitiesView,
     DialectsView,
 )
+from django.http import HttpResponse
+from rest_framework.authtoken.views import obtain_auth_token
+from .payment_processing import create_payment_intent
 
 urlpatterns = [
+    path('api-auth/csrf/', csrf_exempt(lambda request: HttpResponse(status=204))),
+    path("create-payment-intent/", create_payment_intent, name='create-payment-intent'),
     # "GET" call to find user-specific data:
     path("user/me/", ExtendedUserMe.as_view(), name="extended-user-me"),
     path("users/unassigned/", UnassignedMemberList.as_view()),
