@@ -1,4 +1,4 @@
-STATUS = (
+STATUS = [
     ("AC", "Active"),
     ("IM", "Inactive - Matriculated"),
     ("IN", "Inactive - Non-Matriculated"),
@@ -8,22 +8,22 @@ STATUS = (
     ("AL", "Alumnae"),
     ("ME", "Memorial"),
     ("PI", "Permanent Inactivity"),
-)
+]
 
-CHAPTER_STATUS = (
+CHAPTER_STATUS = [
     ("AC", "Active"),
     ("IN", "Inactive"),
-)
+]
 
-NICKNAME_STATUS = (
+NICKNAME_STATUS = [
     ("RE", "Requested"),
     ("AP", "Approved"),
     ("QU", "Queued"),
     ("DE", "Denied"),
-)
+]
 
 # Note that for this use case, the greek alphabet is missing Kappa.
-GREEK_CLASS = (
+GREEK_CLASS = [
     ("00", "Charter"),
     ("01", "Alpha"),
     ("02", "Beta"),
@@ -48,7 +48,7 @@ GREEK_CLASS = (
     (21, "Chi"),
     (22, "Psi"),
     (23, "Omega"),
-)
+]
 
 for i in range(24, 47):
     GREEK_CLASS += ((i, f"Alpha {GREEK_CLASS[i-23][1]}"),)
@@ -57,7 +57,7 @@ for i in range(47, 70):
     GREEK_CLASS += ((i, f"Beta {GREEK_CLASS[i-46][1]}"),)
 
 
-JOB_LEVEL = (
+JOB_LEVEL = [
     ("00", "Internship"),
     ("01", "Entry"),
     ("02", "Associate"),
@@ -68,9 +68,9 @@ JOB_LEVEL = (
     ("07", "Director"),
     ("08", "Senior Director"),
     ("09", "Executive"),
-)
+]
 
-JOB_FAMILY = (
+JOB_FAMILY = [
     ("FI", "Finance"),
     ("CS", "Community Service"),
     ("FU", "Fundraising"),
@@ -80,12 +80,12 @@ JOB_FAMILY = (
     ("ED", "Education"),
     ("RE", "Recruiting"),
     ("PR", "Public Relations"),
-)
+]
 
-EVENT = (
+EVENT = [
     ("FU", "Fundraising"),
     ("SE", "Service"),
     ("PR", "Professional"),
     ("SI", "Sisterhood"),
     ("ED", "Educational"),
-)
+]

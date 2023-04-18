@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Count, Min, Max, Avg
-from .model_choices import *
+from . import model_choices
 from .models import (
     Chapter,
     Job_Opps_And_Referrals,
@@ -14,6 +14,37 @@ from .models import (
     Dialects
 )
 from django.contrib.auth import get_user_model
+
+
+class StatusTupleSerializer(serializers.Serializer):
+    code = serializers.SerializerMethodField()
+    label = serializers.SerializerMethodField()
+
+    def get_code(self, obj):
+        return obj[0]
+
+    def get_label(self, obj):
+        return obj[1]
+    
+    def to_internal_value(self, data):
+        if not isinstance(data, tuple) or len(data) != 2:
+            self.fail('invalid')
+        return {'code': data[0], 'label': data[1]}
+
+    def to_representation(self, value):
+        return (value['code'], value['label'])
+
+    
+
+class ModelChoicesSerializer(serializers.Serializer):
+    STATUS = serializers.DictField(child=serializers.CharField())
+    CHAPTER_STATUS = serializers.DictField(child=serializers.CharField())
+    NICKNAME_STATUS = serializers.DictField(child=serializers.CharField())
+    GREEK_CLASS = serializers.DictField(child=serializers.CharField())
+    JOB_LEVEL = serializers.DictField(child=serializers.CharField())
+    JOB_FAMILY = serializers.DictField(child=serializers.CharField())
+    EVENT = serializers.DictField(child=serializers.CharField())
+
 
 
 class ChapterStatsSerializer(serializers.ModelSerializer):
