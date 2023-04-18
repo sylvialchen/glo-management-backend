@@ -16,6 +16,7 @@ from rest_framework.decorators import (
 from rest_framework import status
 from rest_framework.views import APIView
 from .model_choices import *
+from . import model_choices
 from .models import (
     Chapter,
     Industry,
@@ -44,7 +45,8 @@ from .serializers import (
     AnnouncementsSerializer,
     MembersSerializerAbbr,
     EthnicitiesSerializer,
-    DialectsSerializer
+    DialectsSerializer,
+    ModelChoicesSerializer
 )
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
@@ -52,6 +54,19 @@ from django.middleware.csrf import get_token
 def get_csrf_token(request):
     token = get_token(request)
     return JsonResponse({'csrf_token': token})
+
+
+class ModelChoicesView(APIView):
+    def get(self, request):
+        serializer_context = {}
+        for name in dir(model_choices):
+            if name.isupper():
+                choices = getattr(model_choices, name)
+                serializer_context[name] = {code: label for code, label in choices}
+        serializer = ModelChoicesSerializer(data=serializer_context)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)
+
 
 class ExtendedUserMe(APIView):
     def get(self, request):

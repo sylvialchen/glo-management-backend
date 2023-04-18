@@ -22,6 +22,7 @@ from .views import (
     UnassignedMemberList,
     EthnicitiesView,
     DialectsView,
+    ModelChoicesView,
 )
 from django.http import HttpResponse
 from rest_framework.authtoken.views import obtain_auth_token
@@ -45,6 +46,7 @@ urlpatterns = [
         name="job-opps-and-referrals-list",
     ),
     # "GET" API calls to find list of ALL
+    path('api/model_choices/', ModelChoicesView.as_view(), name='model_choices'),
     path("api/coaches/", CoachListView.as_view()),
     # Following paths accept:
     # "GET" API calls to find list of ALL
