@@ -35,7 +35,6 @@ class StatusTupleSerializer(serializers.Serializer):
         return (value['code'], value['label'])
 
     
-
 class ModelChoicesSerializer(serializers.Serializer):
     STATUS = serializers.DictField(child=serializers.CharField())
     CHAPTER_STATUS = serializers.DictField(child=serializers.CharField())
@@ -44,7 +43,6 @@ class ModelChoicesSerializer(serializers.Serializer):
     JOB_LEVEL = serializers.DictField(child=serializers.CharField())
     JOB_FAMILY = serializers.DictField(child=serializers.CharField())
     EVENT = serializers.DictField(child=serializers.CharField())
-
 
 
 class ChapterStatsSerializer(serializers.ModelSerializer):
@@ -88,9 +86,6 @@ class MemberExperiencesSerializer(serializers.ModelSerializer):
 
 
 class MembersSerializerFull(serializers.ModelSerializer):
-    # crossing_class_txt = serializers.CharField(
-    #     source='get_crossing_class_txt_display')
-    # status_txt = serializers.CharField(source='get_status_txt_display')
     # chapter_nb = ChapterSerializer(many=False, read_only=True)
     experiences = MemberExperiencesSerializer(many=True, read_only=True)
     ethnicity_txt = EthnicitiesSerializer(many=True, read_only=True)
@@ -154,8 +149,6 @@ class MembersSerializerAbbr(serializers.ModelSerializer):
 
 class ChapterSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
-    chapter_status_txt = serializers.CharField(
-        source="get_chapter_status_txt_display")
     chapter_stats = serializers.SerializerMethodField()
     members = MembersSerializerFull(many=True, read_only=True)
 
@@ -171,6 +164,8 @@ class ChapterSerializer(serializers.ModelSerializer):
             "recharter_date",
             "chapter_status_txt",
             "chapter_stats",
+            "org_website_txt",
+            "school_website_txt",
             "members",
         )
 
@@ -221,7 +216,6 @@ class ChapterSerializer(serializers.ModelSerializer):
 
 
 class PositionsTitlesSerializer(serializers.ModelSerializer):
-    # job_family_txt = serializers.CharField(source='get_job_family_txt_display')
 
     class Meta:
         model = Position_Titles
@@ -238,10 +232,7 @@ class ExtendedUserSerializer(serializers.ModelSerializer):
 
 
 class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
-    level_of_opening_txt = serializers.CharField(
-        source='get_level_of_opening_txt_display')
-    poster_nb = MembersSerializerFull(many=False, read_only=True)
-
+    poster_nb = MembersSerializerAbbr(many=False, read_only=True)
     class Meta:
         model = Job_Opps_And_Referrals
         fields = (
@@ -258,6 +249,7 @@ class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
             "description_txt",
             "poster_nb",
         )
+
 
 
 class EventsSerializer(serializers.ModelSerializer):

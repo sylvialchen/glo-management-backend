@@ -51,6 +51,7 @@ from .serializers import (
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 
+
 def get_csrf_token(request):
     token = get_token(request)
     return JsonResponse({'csrf_token': token})
@@ -62,7 +63,8 @@ class ModelChoicesView(APIView):
         for name in dir(model_choices):
             if name.isupper():
                 choices = getattr(model_choices, name)
-                serializer_context[name] = {code: label for code, label in choices}
+                serializer_context[name] = {
+                    code: label for code, label in choices}
         serializer = ModelChoicesSerializer(data=serializer_context)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data)
@@ -135,7 +137,8 @@ class RecentJobsAPIView(APIView):
 
     def get(self, request):
         cutoff_date = timezone.now() - timezone.timedelta(days=30)
-        recent_jobs = Job_Opps_And_Referrals.objects.filter(pub_date__gte=cutoff_date)
+        recent_jobs = Job_Opps_And_Referrals.objects.filter(
+            pub_date__gte=cutoff_date)
 
         serializer = self.serializer_class(recent_jobs, many=True)
         return Response(serializer.data)
@@ -154,6 +157,7 @@ class BaseViewAllApi(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        print(request.data)
         if isinstance(request.data, list):
             # Handle bulk creation
             serializer = self.serializer_class(
@@ -167,10 +171,22 @@ class BaseViewAllApi(APIView):
             # Handle single creation
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
+                # Retrieve the 'poster_nb' from the request data
+                poster_nb = request.data.get("poster_nb")
+                # Only assign 'poster_nb' if it exists
+                if poster_nb is not None:
+                    try:
+                        # Fetch the Member instance using the provided poster_nb
+                        member = Member.objects.get(id=poster_nb)
+                        serializer.validated_data["poster_nb"] = member
+                    except Member.DoesNotExist:
+                        # Handle the case if the Member does not exist
+                        pass
+
                 serializer.save()
                 return Response(status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
 
 class EthnicitiesView(BaseViewAllApi):
     model = Ethnicities
@@ -217,6 +233,8 @@ class AnnouncementsView(BaseViewAllApi):
     serializer_class = AnnouncementsSerializer
 
 # BaseDetail is reusable code to get, update or delete the detail of single instance
+
+
 class BaseDetailView(APIView):
     model = None
     serializer_class = None
@@ -232,7 +250,8 @@ class BaseDetailView(APIView):
         instance = self.get_object(id)
         if instance is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = self.serializer_class(instance, context={"request": request})
+        serializer = self.serializer_class(
+            instance, context={"request": request})
         return Response(serializer.data)
 
     def put(self, request, id):
@@ -240,8 +259,9 @@ class BaseDetailView(APIView):
         if instance is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = self.serializer_class(
-            instance, data=request.data, context={"request": request}
+            instance, data=request.data, context={"request": request}, partial=True
         )
+        print(request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -261,7 +281,8 @@ class ChapterDetailView(BaseDetailView):
 
     def get(self, request, id):
         chapter = self.model.objects.get(id=id)
-        serializer = self.serializer_class(chapter, context={"request": request})
+        serializer = self.serializer_class(
+            chapter, context={"request": request})
         # Retrieve members associated with the chapter
         members = Member.objects.filter(
             Q(chapter_nb=chapter) | Q(crossing_chapter_nb=chapter)

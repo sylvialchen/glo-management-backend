@@ -28,12 +28,12 @@ class Chapter(models.Model):
     school_website_txt = models.CharField(max_length=50, null=True)
 
     def __str__(self):
-        if self.associate_chapter_fg == True:
+        if self.associate_chapter_fg:
             return f"Associate Chapter @ {self.chapter_school_txt}"
         return f"{self.greek_letter_assigned_txt} @ {self.chapter_school_txt}"
 
     class Meta:
-        ordering = ["-associate_chapter_fg", "original_founding_date"]
+        ordering = ["chapter_status_txt", "associate_chapter_fg", "greek_letter_assigned_txt", "original_founding_date"]
 
 
 class Industry(models.Model):
