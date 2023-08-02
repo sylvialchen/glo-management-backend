@@ -251,7 +251,6 @@ class JobOppsAndReferralsSerializer(serializers.ModelSerializer):
         )
 
 
-
 class EventsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Events
@@ -264,3 +263,22 @@ class AnnouncementsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CurrentPESerializer(serializers.ModelSerializer):
+    process_educator = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Member_Experiences
+        fields = (
+            # "chapter_nb",
+            "start_date",
+            "end_date",
+            "id",
+            "process_educator",
+        )
+
+    def get_process_educator(self, member_experience):
+        # Retrieve the Member instance for the current Member_Experiences object
+        member = member_experience.member_nb
+
+        # Return the member_id of the process educator
+        return MembersSerializerAbbr(member).data

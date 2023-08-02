@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Add the include function to the import
 from django.urls import path, include
-from main_app import views
+from main_app.views import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),

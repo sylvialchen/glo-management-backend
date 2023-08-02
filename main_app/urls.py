@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import path
-from .views import (
+from .views.views import (
     ChapterView,
     ChapterDetailView,
     JobOppsAndReferralsView,
@@ -23,6 +23,9 @@ from .views import (
     EthnicitiesView,
     DialectsView,
     ModelChoicesView,
+)
+from .views.nickname_req_process_views import (
+    CurrentPEView
 )
 from django.http import HttpResponse
 from rest_framework.authtoken.views import obtain_auth_token
@@ -99,4 +102,7 @@ urlpatterns = [
         AnnouncementsDetailView.as_view(),
         name="announcements-detail",
     ),
+# nickname request process application routes
+     path("api/process_educators/now", CurrentPEView.as_view(), name="current-PEs"),
 ]
+
