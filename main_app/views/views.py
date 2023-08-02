@@ -15,9 +15,9 @@ from rest_framework.decorators import (
 )
 from rest_framework import status
 from rest_framework.views import APIView
-from .model_choices import *
-from . import model_choices
-from .models import (
+from ..model_choices import *
+from .. import model_choices
+from ..models import (
     Chapter,
     Industry,
     Chapter_Stats,
@@ -33,7 +33,7 @@ from .models import (
     Ethnicities,
     Dialects
 )
-from .serializers import (
+from ..serializers import (
     ChapterSerializer,
     JobOppsAndReferralsSerializer,
     MembersSerializerFull,
@@ -56,7 +56,7 @@ def get_csrf_token(request):
     token = get_token(request)
     return JsonResponse({'csrf_token': token})
 
-
+# API call for abbreviations widely used across our application
 class ModelChoicesView(APIView):
     def get(self, request):
         serializer_context = {}
@@ -69,14 +69,13 @@ class ModelChoicesView(APIView):
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data)
 
-
+# API call for logged-in user data
 class ExtendedUserMe(APIView):
     def get(self, request):
         serializer = ExtendedUserSerializer(request.user)
         return Response(serializer.data)
 
-
-# Displays all users that have registered and are not assigned to a Member Profile
+# Administrative -- Displays all users that have registered and are not assigned to a Member Profile
 class UnassignedMemberList(APIView):
     serializer_class = MembersSerializerAbbr
     allow_methods = ["GET"]
@@ -100,7 +99,7 @@ class UnassignedMemberList(APIView):
             }
         )
 
-
+# The following (3) views are available on the dashboard of the Member Management Portal for every user.
 class CoachListView(APIView):
     def get(self, request):
         data = Member.objects.filter(coach_fg=True)
@@ -144,7 +143,7 @@ class RecentJobsAPIView(APIView):
         return Response(serializer.data)
 
 
-# BaseViewAll is reusable code to get all or create 1 or more new instance(s) for aspecified model
+# BaseViewAll is reusable code to get all or create 1 or more new instance(s) for a specified model
 class BaseViewAllApi(APIView):
     model = None
     serializer_class = None
@@ -187,7 +186,7 @@ class BaseViewAllApi(APIView):
                 return Response(status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-
+# The following extend the BaseViewAll class for a specific model
 class EthnicitiesView(BaseViewAllApi):
     model = Ethnicities
     serializer_class = EthnicitiesSerializer
@@ -232,9 +231,8 @@ class AnnouncementsView(BaseViewAllApi):
     model = Announcements
     serializer_class = AnnouncementsSerializer
 
+
 # BaseDetail is reusable code to get, update or delete the detail of single instance
-
-
 class BaseDetailView(APIView):
     model = None
     serializer_class = None
@@ -274,7 +272,10 @@ class BaseDetailView(APIView):
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
+# The following extend the BaseDetailView for each respective model
+# With the exception of the Ethnicities and Dialects model, 
+# which are simple models which have been preloaded, and primarily used 
+# for dropdowns and analytics.
 class ChapterDetailView(BaseDetailView):
     model = Chapter
     serializer_class = ChapterSerializer
