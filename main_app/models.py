@@ -16,7 +16,7 @@ from main_app.model_choices import (
 
 class Chapter(models.Model):
     associate_chapter_fg = models.BooleanField(default=True)
-    greek_letter_assigned_txt = models.CharField(max_length=15, blank=False, null=True)
+    greek_letter_assigned_txt = models.CharField(max_length=50, blank=False, null=True)
     chapter_school_txt = models.CharField(max_length=50)
     city_state_txt = models.CharField(max_length=50)
     original_founding_date = models.DateField()
@@ -241,6 +241,7 @@ class Chapter_Stats(models.Model):
     smallest_class_crossed_nb = models.PositiveIntegerField()
     largest_class_crossed_nb = models.PositiveIntegerField()
     average_class_crossed_fl = models.FloatField()
+    last_class_crossed_nb = models.PositiveIntegerField()
 
     # def __str__(self):
     #     return f"Active: {self.active_nb}, Inactive: {self.inactive_nb}, Alumni: {self.alumni_nb}, Deceased: {self.memorial_nb}, Total: {self.total_crossed_nb}"
